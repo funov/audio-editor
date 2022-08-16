@@ -1,7 +1,7 @@
 import sys
 
-from PyQt5.QtCore import Qt, QThreadPool, QUrl
-from PyQt5.QtGui import QPixmap, QImage, QFont
+from PyQt5.QtCore import Qt, QUrl, QTimer
+from PyQt5.QtGui import QFont
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 from PyQt5.QtWidgets import (
     QMainWindow,
@@ -12,9 +12,10 @@ from PyQt5.QtWidgets import (
     QGridLayout,
     QWidget,
     QLabel,
-    QScrollArea, QStyle, QListWidget, QSlider
+    QStyle,
+    QListWidget,
+    QSlider
 )
-from PyQt5.uic.properties import QtCore
 
 
 class Window(QMainWindow):
@@ -25,42 +26,66 @@ class Window(QMainWindow):
         self.setWindowTitle("Audio Editor")
         self.init_center_geometry()
 
-        self.state = "Play"
-        self.position = 0
-
         self.title_label = QLabel("Audio Editor")
         self.title_label.setFont(QFont("Calibri", 20))
         self.title_label.setAlignment(Qt.AlignCenter)
 
-        self.rewind_left_button = QPushButton(self)
-        self.rewind_left_button.setIcon(self.style().standardIcon(QStyle.SP_MediaSeekBackward))
-        self.rewind_left_button.clicked.connect(self.move_backward)
+        self.rewind_left_button = self.configure_button(
+            self.style().standardIcon(QStyle.SP_MediaSeekBackward),
+            self.move_backward
+        )
 
-        self.rewind_right_button = QPushButton(self)
-        self.rewind_right_button.setIcon(self.style().standardIcon(QStyle.SP_MediaSeekForward))
-        self.rewind_right_button.clicked.connect(self.move_forward)
+        self.rewind_right_button = self.configure_button(
+            self.style().standardIcon(QStyle.SP_MediaSeekForward),
+            self.move_forward
+        )
 
-        self.play_button = QPushButton("Play", self)
-        self.play_button.setIcon(self.style().standardIcon(QStyle.SP_MediaPlay))
-        self.play_button.setFont(QFont("Calibri", 14))
-        self.play_button.clicked.connect(self.play_audio)
+        self.play_button = self.configure_button(
+            self.style().standardIcon(QStyle.SP_MediaPlay),
+            self.play_audio,
+            QFont("Calibri", 14),
+            "Play"
+        )
 
-        self.audio_selection_button = QPushButton(self)
-        self.audio_selection_button.setIcon(self.style().standardIcon(QStyle.SP_DirOpenIcon))
-        self.audio_selection_button.clicked.connect(self.open_audio_file)
+        self.audio_selection_button = self.configure_button(
+            self.style().standardIcon(QStyle.SP_DirOpenIcon),
+            self.open_audio_file
+        )
 
         self.audio_line = QSlider(Qt.Horizontal, self)
-        self.audio_line.setRange(0, 0)
-        # self.audio_line.sliderMoved.connect(self.set_position)
+        self.audio_line.sliderMoved.connect(self.set_player_position)
+        self.reset_audio_line()
 
         self.audio_list = QListWidget(self)
 
         self.grid_layout = self.configure_grid_layout()
 
         self.player = QMediaPlayer(self)
-        self.player.positionChanged.connect(self.move_slider)
-        self.player.durationChanged.connect(self.init_audio_line_length)
-        self.player.stateChanged.connect(self.change_state_icon)
+        self.player.stateChanged.connect(self.change_play_state)
+
+        self.is_playing = False
+        self.start_play_position = 0
+        self.duration = None
+        self.timer = None
+        self.path = ''
+
+    def configure_button(self, icon, clicked_event, font=None, name=None):
+        if name is not None:
+            button = QPushButton(name, self)
+        else:
+            button = QPushButton(self)
+
+        if font is not None:
+            button.setFont(font)
+
+        button.setIcon(icon)
+        button.clicked.connect(clicked_event)
+
+        return button
+
+    def reset_audio_line(self):
+        self.audio_line.setRange(0, 0)
+        self.audio_line.setValue(0)
 
     def open_audio_file(self):
         file_dialog = QFileDialog(self)
@@ -77,53 +102,84 @@ class Window(QMainWindow):
                 QMessageBox.Ok
             )
             return
-        else:
-            path = self.audio_list.currentItem().text()
 
-        if self.state == "Play":
-            self.play_button.setText("Pause")
-            self.state = "Pause"
-            url = QUrl.fromLocalFile(path)
+        path = self.audio_list.currentItem().text()
+        if path != self.path:
+            self.finish_audio()
+            self.path = path
+
+        if not self.is_playing:
+            self.change_play_state()
+
+            url = QUrl.fromLocalFile(self.path)
             content = QMediaContent(url)
-            self.player.setMedia(content)
-            if self.position != 0:
-                self.player.setPosition(self.position)
-                self.player.play()
-        else:
-            self.play_button.setText("Play")
-            self.state = "Play"
-            self.player.pause()
-            paused = self.player.position()
-            self.position = paused
 
-    def set_position(self, position):
+            self.player.setMedia(content)
+            self.init_audio_line_length()
+            self.player.setPosition(self.start_play_position)
+
+            self.init_new_timer()
+            self.player.play()
+            return
+
+        self.change_play_state()
+        self.pause_player()
+
+    def set_player_position(self, position):
         self.player.setPosition(position)
 
-    def move_slider(self):
-        print(1)
-        self.audio_line.setValue(self.player.position())
+    def pause_player(self):
+        self.player.pause()
+        paused = self.player.position()
+        self.start_play_position = paused
 
-    def init_audio_line_length(self, duration):
-        print(duration)
-        self.audio_line.setRange(0, duration)
+    def init_new_timer(self):
+        self.timer = QTimer()
+        self.timer.setInterval(1000)
+        self.timer.timeout.connect(self.time_step)
+        self.timer.start()
 
-        if self.position == 0:
-            self.player.setPosition(self.position)
-            self.player.play()
+    def time_step(self):
+        if self.is_playing:
+            self.audio_line.setValue(self.audio_line.value() + 1000)
 
-    def change_state_icon(self):
+    def init_audio_line_length(self):
+        # TODO duration from ffmpeg
+        self.duration = int(7.25) * 1000
+        self.audio_line.setRange(0, self.duration)
+
+    def change_play_state(self):
+        if self.duration is not None and self.audio_line.value() - self.duration >= 0:
+            self.finish_audio()
+
         if self.player.state() == QMediaPlayer.PlayingState:
             icon = QStyle.SP_MediaPause
+            self.is_playing = True
+            self.play_button.setText("Pause")
         else:
             icon = QStyle.SP_MediaPlay
+            self.is_playing = False
+            self.play_button.setText("Play")
 
         self.play_button.setIcon(self.style().standardIcon(icon))
 
+    def finish_audio(self):
+        self.duration = None
+        self.start_play_position = 0
+        self.player.stop()
+
+        if self.timer is not None:
+            self.timer.stop()
+
+        self.reset_audio_line()
+
     def move_forward(self):
-        self.player.setPosition(int(self.player.position()) + 1000)
+        self.player.setPosition(self.audio_line.value() + 1000)
+        self.audio_line.setValue(self.audio_line.value() + 1000)
 
     def move_backward(self):
-        self.player.setPosition(int(self.player.position()) - 1000)
+        self.player.setPosition(self.audio_line.value() - 1000)
+        self.audio_line.setValue(self.audio_line.value() - 1000)
 
     def init_center_geometry(self):
         screen_rect = self.screen().geometry()
