@@ -12,5 +12,5 @@ class Slider(QSlider):
             e.accept()
             x = e.pos().x()
             value = (self.maximum() - self.minimum()) * x / self.width() + self.minimum()
-            self.setValue(value - value % 1000)
-            self.main_window.set_player_position(value - value % 1000)
+            self.setValue(value - value % 100)
+            self.main_window.set_player_position(self.value())

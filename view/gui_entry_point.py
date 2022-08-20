@@ -136,13 +136,13 @@ class Window(QMainWindow):
 
     def init_new_timer(self):
         self.timer = QTimer()
-        self.timer.setInterval(1000)
+        self.timer.setInterval(100)
         self.timer.timeout.connect(self.time_step)
         self.timer.start()
 
     def time_step(self):
         if self.is_playing:
-            self.audio_line.setValue(self.audio_line.value() + 1000)
+            self.audio_line.setValue(self.audio_line.value() + 100)
 
     def init_audio_line_length(self):
         # TODO duration from ffmpeg
@@ -152,7 +152,7 @@ class Window(QMainWindow):
         self.audio_line.setRange(0, self.duration)
 
     def change_play_state(self):
-        if self.duration is not None and self.audio_line.value() - self.duration >= 0:
+        if self.duration is not None and self.duration - self.audio_line.value() <= 1000:
             self.finish_audio()
 
         if self.player.state() == QMediaPlayer.PlayingState:
@@ -177,12 +177,12 @@ class Window(QMainWindow):
         self.reset_audio_line()
 
     def move_forward(self):
-        self.player.setPosition(self.audio_line.value() + 1000)
-        self.audio_line.setValue(self.audio_line.value() + 1000)
+        self.audio_line.setValue(self.audio_line.value() + 100)
+        self.player.setPosition(self.audio_line.value())
 
     def move_backward(self):
-        self.player.setPosition(self.audio_line.value() - 1000)
-        self.audio_line.setValue(self.audio_line.value() - 1000)
+        self.audio_line.setValue(self.audio_line.value() - 100)
+        self.player.setPosition(self.audio_line.value())
 
     def init_center_geometry(self):
         screen_rect = self.screen().geometry()
