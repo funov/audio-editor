@@ -1,4 +1,5 @@
 import sys
+from math import ceil
 from slider import Slider
 
 from PyQt5.QtCore import Qt, QUrl, QTimer
@@ -145,7 +146,9 @@ class Window(QMainWindow):
 
     def init_audio_line_length(self):
         # TODO duration from ffmpeg
-        self.duration = int(7.25) * 1000
+        input_ = 7.25
+
+        self.duration = ceil(input_) * 1000
         self.audio_line.setRange(0, self.duration)
 
     def change_play_state(self):
