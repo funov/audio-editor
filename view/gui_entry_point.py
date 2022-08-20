@@ -1,4 +1,5 @@
 import sys
+from slider import Slider
 
 from PyQt5.QtCore import Qt, QUrl, QTimer
 from PyQt5.QtGui import QFont
@@ -13,8 +14,7 @@ from PyQt5.QtWidgets import (
     QWidget,
     QLabel,
     QStyle,
-    QListWidget,
-    QSlider
+    QListWidget
 )
 
 
@@ -52,7 +52,7 @@ class Window(QMainWindow):
             self.open_audio_file
         )
 
-        self.audio_line = QSlider(Qt.Horizontal, self)
+        self.audio_line = Slider(Qt.Horizontal, self)
         self.audio_line.sliderMoved.connect(self.set_player_position)
         self.reset_audio_line()
 
@@ -126,7 +126,7 @@ class Window(QMainWindow):
         self.pause_player()
 
     def set_player_position(self, position):
-        self.player.setPosition(position)
+        self.player.setPosition(int(position))
 
     def pause_player(self):
         self.player.pause()
