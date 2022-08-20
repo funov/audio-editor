@@ -1,5 +1,4 @@
 import sys
-from math import ceil
 from slider import Slider
 
 from PyQt5.QtCore import Qt, QUrl, QTimer
@@ -148,11 +147,12 @@ class Window(QMainWindow):
         # TODO duration from ffmpeg
         input_ = 7.25
 
-        self.duration = ceil(input_) * 1000
+        input_ *= 1000
+        self.duration = int(input_ - input_ % 100)
         self.audio_line.setRange(0, self.duration)
 
     def change_play_state(self):
-        if self.duration is not None and self.duration - self.audio_line.value() <= 1000:
+        if self.duration is not None and self.duration - self.audio_line.value() <= 0:
             self.finish_audio()
 
         if self.player.state() == QMediaPlayer.PlayingState:
@@ -177,11 +177,11 @@ class Window(QMainWindow):
         self.reset_audio_line()
 
     def move_forward(self):
-        self.audio_line.setValue(self.audio_line.value() + 100)
+        self.audio_line.setValue(self.audio_line.value() + 1000)
         self.player.setPosition(self.audio_line.value())
 
     def move_backward(self):
-        self.audio_line.setValue(self.audio_line.value() - 100)
+        self.audio_line.setValue(self.audio_line.value() - 1000)
         self.player.setPosition(self.audio_line.value())
 
     def init_center_geometry(self):
