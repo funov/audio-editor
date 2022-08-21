@@ -1,7 +1,8 @@
 import sys
 from slider import Slider
+from controller.gui_controller import GetAudioInfoWorker
 
-from PyQt5.QtCore import Qt, QUrl, QTimer
+from PyQt5.QtCore import Qt, QUrl, QTimer, QThreadPool
 from PyQt5.QtGui import QFont
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 from PyQt5.QtWidgets import (
@@ -67,6 +68,7 @@ class Window(QMainWindow):
         self.start_play_position = 0
         self.duration = None
         self.timer = None
+        self.threadpool = QThreadPool()
         self.path = ''
 
     def configure_button(self, icon, clicked_event, font=None, name=None):
@@ -115,11 +117,8 @@ class Window(QMainWindow):
             content = QMediaContent(url)
 
             self.player.setMedia(content)
-            self.init_audio_line_length()
             self.player.setPosition(self.start_play_position)
-
-            self.init_new_timer()
-            self.player.play()
+            self.get_audio_line_length(self.path)
             return
 
         self.change_play_state()
@@ -143,13 +142,19 @@ class Window(QMainWindow):
         if self.is_playing:
             self.audio_line.setValue(self.audio_line.value() + 100)
 
-    def init_audio_line_length(self):
-        # TODO duration from ffmpeg
-        input_ = 7.25
+    def get_audio_line_length(self, path):
+        worker = GetAudioInfoWorker(path)
+        worker.signals.result.connect(self.start_playing)
+        self.threadpool.start(worker)
 
-        input_ *= 1000
-        self.duration = int(input_ - input_ % 100)
+    def start_playing(self, audio_info):
+        seconds_duration = audio_info.int_duration
+        seconds_duration *= 1000
+        self.duration = int(seconds_duration - seconds_duration % 100)
         self.audio_line.setRange(0, self.duration)
+
+        self.init_new_timer()
+        self.player.play()
 
     def change_play_state(self):
         if self.duration is not None and self.duration - self.audio_line.value() <= 0:
