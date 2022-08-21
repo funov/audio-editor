@@ -45,7 +45,12 @@ class Window(QMainWindow):
             self.style().standardIcon(QStyle.SP_MediaPlay),
             self.play_audio,
             QFont("Calibri", 14),
-            "Play"
+        )
+
+        self.edit_button = self.configure_button(
+            self.style().standardIcon(QStyle.SP_MediaVolume),
+            self.open_edit_dialog,
+            name="Редактировать"
         )
 
         self.audio_selection_button = self.configure_button(
@@ -163,11 +168,9 @@ class Window(QMainWindow):
         if self.player.state() == QMediaPlayer.PlayingState:
             icon = QStyle.SP_MediaPause
             self.is_playing = True
-            self.play_button.setText("Pause")
         else:
             icon = QStyle.SP_MediaPlay
             self.is_playing = False
-            self.play_button.setText("Play")
 
         self.play_button.setIcon(self.style().standardIcon(icon))
 
@@ -183,11 +186,14 @@ class Window(QMainWindow):
 
     def move_forward(self):
         self.audio_line.setValue(self.audio_line.value() + 1000)
-        self.player.setPosition(self.audio_line.value())
+        self.player.setPosition(self.player.position() + 1000)
 
     def move_backward(self):
         self.audio_line.setValue(self.audio_line.value() - 1000)
-        self.player.setPosition(self.audio_line.value())
+        self.player.setPosition(self.player.position() - 1000)
+
+    def open_edit_dialog(self):
+        pass
 
     def init_center_geometry(self):
         screen_rect = self.screen().geometry()
@@ -222,7 +228,8 @@ class Window(QMainWindow):
         grid_layout.addWidget(self.rewind_right_button, 1, 6, 1, 3)
         grid_layout.addWidget(self.play_button, 1, 3, 1, 3)
         grid_layout.addWidget(self.audio_selection_button, 2, 0, 1, 2)
-        grid_layout.addWidget(self.audio_line, 2, 2, 1, 7)
+        grid_layout.addWidget(self.audio_line, 2, 2, 1, 5)
+        grid_layout.addWidget(self.edit_button, 2, 7, 1, 2)
         grid_layout.addWidget(self.audio_list, 3, 0, 1, 9)
 
         self.centralWidget().setLayout(grid_layout)
