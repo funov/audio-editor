@@ -1,5 +1,9 @@
 import sys
+
+from PyQt5.uic.properties import QtGui
+
 from slider import Slider
+from audio_editor_dialog import AudioEditorDialog
 from controller.gui_controller import GetAudioInfoWorker
 
 from PyQt5.QtCore import Qt, QUrl, QTimer, QThreadPool
@@ -73,6 +77,7 @@ class Window(QMainWindow):
         self.start_play_position = 0
         self.duration = None
         self.timer = None
+        self.edit_dialog = None
         self.threadpool = QThreadPool()
         self.path = ''
 
@@ -193,7 +198,28 @@ class Window(QMainWindow):
         self.player.setPosition(self.player.position() - 1000)
 
     def open_edit_dialog(self):
-        pass
+        pos_x, pos_y, window_w, window_h = self.get_dialog_params()
+
+        self.edit_dialog = AudioEditorDialog(
+            pos_x,
+            pos_y,
+            window_w,
+            window_h,
+            self.audio_list
+        )
+
+        self.edit_dialog.show()
+
+    def get_dialog_params(self):
+        screen_rect = self.screen().geometry()
+
+        window_height = self.size().height() // 2
+        window_width = self.size().width() // 2
+
+        screen_center_x = screen_rect.width() // 2 - window_width // 2
+        screen_center_y = screen_rect.height() // 2 - window_height // 2
+
+        return screen_center_x, screen_center_y, window_width, window_height
 
     def init_center_geometry(self):
         screen_rect = self.screen().geometry()
