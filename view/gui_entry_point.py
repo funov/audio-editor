@@ -1,7 +1,5 @@
 import sys
 
-from PyQt5.uic.properties import QtGui
-
 from slider import Slider
 from audio_editor_dialog import AudioEditorDialog
 from controller.gui_controller import GetAudioInfoWorker
@@ -74,11 +72,11 @@ class Window(QMainWindow):
         self.player.stateChanged.connect(self.change_play_state)
 
         self.is_playing = False
-        self.start_play_position = 0
         self.duration = None
         self.timer = None
         self.edit_dialog = None
         self.threadpool = QThreadPool()
+        self.start_play_position = 0
         self.path = ''
 
     def configure_button(self, icon, clicked_event, font=None, name=None):
@@ -144,13 +142,13 @@ class Window(QMainWindow):
 
     def init_new_timer(self):
         self.timer = QTimer()
-        self.timer.setInterval(100)
+        self.timer.setInterval(1000)
         self.timer.timeout.connect(self.time_step)
         self.timer.start()
 
     def time_step(self):
         if self.is_playing:
-            self.audio_line.setValue(self.audio_line.value() + 100)
+            self.audio_line.setValue(self.audio_line.value() + 1000)
 
     def get_audio_line_length(self, path):
         worker = GetAudioInfoWorker(path)
@@ -160,14 +158,14 @@ class Window(QMainWindow):
     def start_playing(self, audio_info):
         seconds_duration = audio_info.int_duration
         seconds_duration *= 1000
-        self.duration = int(seconds_duration - seconds_duration % 100)
+        self.duration = int(seconds_duration - seconds_duration % 1000)
         self.audio_line.setRange(0, self.duration)
 
         self.init_new_timer()
         self.player.play()
 
     def change_play_state(self):
-        if self.duration is not None and self.duration - self.audio_line.value() <= 0:
+        if self.duration is not None and self.duration == self.audio_line.value():
             self.finish_audio()
 
         if self.player.state() == QMediaPlayer.PlayingState:
