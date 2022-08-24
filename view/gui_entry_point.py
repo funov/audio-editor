@@ -1,7 +1,8 @@
 import sys
 
 from slider import Slider
-from audio_editor_dialog import AudioEditorDialog
+from utils import configure_button
+from audio_editor_main_dialog import AudioEditorDialog
 from controller.gui_controller import GetAudioInfoWorker
 
 from PyQt5.QtCore import Qt, QUrl, QTimer, QThreadPool
@@ -33,31 +34,36 @@ class Window(QMainWindow):
         self.title_label.setFont(QFont("Calibri", 20))
         self.title_label.setAlignment(Qt.AlignCenter)
 
-        self.rewind_left_button = self.configure_button(
-            self.style().standardIcon(QStyle.SP_MediaSeekBackward),
-            self.move_backward
+        self.rewind_left_button = configure_button(
+            self,
+            self.move_backward,
+            self.style().standardIcon(QStyle.SP_MediaSeekBackward)
         )
 
-        self.rewind_right_button = self.configure_button(
-            self.style().standardIcon(QStyle.SP_MediaSeekForward),
-            self.move_forward
+        self.rewind_right_button = configure_button(
+            self,
+            self.move_forward,
+            self.style().standardIcon(QStyle.SP_MediaSeekForward)
         )
 
-        self.play_button = self.configure_button(
-            self.style().standardIcon(QStyle.SP_MediaPlay),
+        self.play_button = configure_button(
+            self,
             self.play_audio,
+            self.style().standardIcon(QStyle.SP_MediaPlay),
             QFont("Calibri", 14),
         )
 
-        self.edit_button = self.configure_button(
-            self.style().standardIcon(QStyle.SP_MediaVolume),
+        self.edit_button = configure_button(
+            self,
             self.open_edit_dialog,
+            self.style().standardIcon(QStyle.SP_MediaVolume),
             name="Редактировать"
         )
 
-        self.audio_selection_button = self.configure_button(
-            self.style().standardIcon(QStyle.SP_DirOpenIcon),
-            self.open_audio_file
+        self.audio_selection_button = configure_button(
+            self,
+            self.open_audio_file,
+            self.style().standardIcon(QStyle.SP_DirOpenIcon)
         )
 
         self.audio_line = Slider(Qt.Horizontal, self)
@@ -78,20 +84,6 @@ class Window(QMainWindow):
         self.threadpool = QThreadPool()
         self.start_play_position = 0
         self.path = ''
-
-    def configure_button(self, icon, clicked_event, font=None, name=None):
-        if name is not None:
-            button = QPushButton(name, self)
-        else:
-            button = QPushButton(self)
-
-        if font is not None:
-            button.setFont(font)
-
-        button.setIcon(icon)
-        button.clicked.connect(clicked_event)
-
-        return button
 
     def reset_audio_line(self):
         self.audio_line.setRange(0, 0)
