@@ -8,12 +8,14 @@ from PyQt5.QtWidgets import (
     QPushButton,
     QLabel,
     QDialog,
-    QFormLayout
+    QFormLayout, QFrame, QWidget, QGridLayout
 )
 
 
 class AudioEditorDialog(QDialog):
     def __init__(self, x, y, width, height, audio_list):
+        self.audio_list = audio_list
+
         super(AudioEditorDialog, self).__init__()
 
         self.setGeometry(x, y, width, height)
@@ -58,16 +60,13 @@ class AudioEditorDialog(QDialog):
             name="Конвертация"
         )
 
-        # self.settings_description = QLabel()
-        # description = ''
-        #
-        # for i in range(audio_list.count()):
-        #     description += audio_list.item(i).text() + '\n'
-        #
-        # self.settings_description.setText(description)
+        self.main_layout = QGridLayout()
+        self.setLayout(self.main_layout)
 
-        form = self.configure_form_layout()
-        self.setLayout(form)
+        self.frame = QFrame()
+        self.form = self.configure_form_layout()
+        self.frame.setLayout(self.form)
+        self.main_layout.addWidget(self.frame, 0, 0, 1, 1)
 
     def configure_form_layout(self):
         form = QFormLayout()
@@ -87,10 +86,22 @@ class AudioEditorDialog(QDialog):
         pass
 
     def open_crop_dialog(self):
-        pass
+        self.frame.hide()
+
+        self.settings_description = QLabel()
+        description = ''
+
+        for i in range(self.audio_list.count()):
+            description += self.audio_list.item(i).text() + '\n'
+
+        self.settings_description.setText(description)
+
+        self.main_layout.addWidget(self.settings_description, 0, 0, 1, 1)
+        self.main_layout.addWidget(self.glue_button, 0, 1, 1, 1)
 
     def open_glue_dialog(self):
-        pass
+        self.settings_description.hide()
+        self.frame.show()
 
     def open_paste_dialog(self):
         pass
