@@ -4,6 +4,7 @@ from slider import Slider
 from utils import configure_button
 from audio_editor_main_dialog import AudioEditorDialog
 from controller.gui_controller import GetAudioInfoWorker
+from model.utils import to_str_time
 
 from PyQt5.QtCore import Qt, QUrl, QTimer, QThreadPool
 from PyQt5.QtGui import QFont
@@ -56,8 +57,7 @@ class Window(QMainWindow):
         self.edit_button = configure_button(
             self,
             self.open_edit_dialog,
-            self.style().standardIcon(QStyle.SP_MediaVolume),
-            name="Редактировать"
+            self.style().standardIcon(QStyle.SP_FileDialogDetailedView)
         )
 
         self.audio_selection_button = configure_button(
@@ -68,6 +68,11 @@ class Window(QMainWindow):
 
         self.audio_line = Slider(Qt.Horizontal, self)
         self.audio_line.sliderMoved.connect(self.set_player_position)
+
+        self.user_timer = QLabel(to_str_time(0, 0, 0))
+        self.user_timer.setFont(QFont("Calibri", 14))
+        self.user_timer.setAlignment(Qt.AlignCenter)
+        
         self.reset_audio_line()
 
         self.audio_list = QListWidget(self)
@@ -88,6 +93,7 @@ class Window(QMainWindow):
     def reset_audio_line(self):
         self.audio_line.setRange(0, 0)
         self.audio_line.setValue(0)
+        self.user_timer.setText(to_str_time(0, 0, 0))
 
     def open_audio_file(self):
         file_dialog = QFileDialog(self)
@@ -141,6 +147,7 @@ class Window(QMainWindow):
     def time_step(self):
         if self.is_playing:
             self.audio_line.setValue(self.audio_line.value() + 1000)
+            self.user_timer.setText(to_str_time(self.audio_line.value() // 1000, 0, 0))
 
     def get_audio_line_length(self, path):
         worker = GetAudioInfoWorker(path)
@@ -182,10 +189,12 @@ class Window(QMainWindow):
     def move_forward(self):
         self.audio_line.setValue(self.audio_line.value() + 1000)
         self.player.setPosition(self.player.position() + 1000)
+        self.user_timer.setText(to_str_time(self.audio_line.value() // 1000, 0, 0))
 
     def move_backward(self):
         self.audio_line.setValue(self.audio_line.value() - 1000)
         self.player.setPosition(self.player.position() - 1000)
+        self.user_timer.setText(to_str_time(self.audio_line.value() // 1000, 0, 0))
 
     def open_edit_dialog(self):
         pos_x, pos_y, window_w, window_h = self.get_dialog_params()
@@ -245,7 +254,8 @@ class Window(QMainWindow):
         grid_layout.addWidget(self.play_button, 1, 3, 1, 3)
         grid_layout.addWidget(self.audio_selection_button, 2, 0, 1, 2)
         grid_layout.addWidget(self.audio_line, 2, 2, 1, 5)
-        grid_layout.addWidget(self.edit_button, 2, 7, 1, 2)
+        grid_layout.addWidget(self.user_timer, 2, 7, 1, 1)
+        grid_layout.addWidget(self.edit_button, 2, 8, 1, 1)
         grid_layout.addWidget(self.audio_list, 3, 0, 1, 9)
 
         self.centralWidget().setLayout(grid_layout)

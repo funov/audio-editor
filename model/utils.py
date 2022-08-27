@@ -15,7 +15,7 @@ def from_str_time_to_int_seconds(str_time):
 
 
 def convert(from_, to_):
-    if from_ > 99:
+    if from_ > 59:
         to_ += from_ // 60
         from_ %= 60
 
