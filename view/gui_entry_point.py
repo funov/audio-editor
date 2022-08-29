@@ -1,4 +1,5 @@
 import sys
+from tempfile import TemporaryDirectory
 
 from slider import Slider
 from utils import configure_button
@@ -6,7 +7,7 @@ from audio_editor_main_dialog import AudioEditorDialog
 from controller.gui_controller import GetAudioInfoWorker
 from model.utils import to_str_time
 
-from PyQt5.QtCore import Qt, QUrl, QTimer, QThreadPool
+from PyQt5.QtCore import Qt, QUrl, QTimer, QThreadPool, QMimeData
 from PyQt5.QtGui import QFont
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 from PyQt5.QtWidgets import (
@@ -24,9 +25,10 @@ from PyQt5.QtWidgets import (
 
 
 class Window(QMainWindow):
-    def __init__(self, app):
+    def __init__(self, app, temp_dir):
         super(Window, self).__init__()
         self.app = app
+        self.temp_dir = temp_dir
 
         self.setWindowTitle("Audio Editor")
         self.init_center_geometry()
@@ -72,7 +74,7 @@ class Window(QMainWindow):
         self.user_timer = QLabel(to_str_time(0, 0, 0))
         self.user_timer.setFont(QFont("Calibri", 14))
         self.user_timer.setAlignment(Qt.AlignCenter)
-        
+
         self.reset_audio_line()
 
         self.audio_list = QListWidget(self)
@@ -99,7 +101,12 @@ class Window(QMainWindow):
         file_dialog = QFileDialog(self)
         file_dialog.setFileMode(QFileDialog.ExistingFiles)
         audio_paths = file_dialog.getOpenFileNames(self, "Open files", '/home', 'Audio Files (*.mp3 *.wav)')
-        self.audio_list.addItems(audio_paths[0])
+
+        current_paths = [self.audio_list.item(i).text() for i in range(self.audio_list.count())]
+
+        for path in audio_paths[0]:
+            if path not in current_paths:
+                self.audio_list.addItem(path)
 
     def play_audio(self):
         if self.audio_list.currentItem() is None:
@@ -199,13 +206,15 @@ class Window(QMainWindow):
     def open_edit_dialog(self):
         pos_x, pos_y, window_w, window_h = self.get_dialog_params()
 
-        self.edit_dialog = AudioEditorDialog(
-            pos_x,
-            pos_y,
-            window_w,
-            window_h,
-            self.audio_list
-        )
+        if self.edit_dialog is None:
+            self.edit_dialog = AudioEditorDialog(
+                pos_x,
+                pos_y,
+                window_w,
+                window_h,
+                self.grid_layout,
+                self
+            )
 
         self.edit_dialog.show()
 
@@ -265,6 +274,10 @@ class Window(QMainWindow):
 
 if __name__ == '__main__':
     application = QApplication(sys.argv)
-    window = Window(application)
-    window.show()
-    sys.exit(application.exec_())
+
+    with TemporaryDirectory() as temp_dir_name:
+        print('Создана временная директория -', temp_dir_name)
+
+        window = Window(application, temp_dir_name)
+        window.show()
+        sys.exit(application.exec_())

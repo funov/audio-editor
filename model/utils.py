@@ -5,6 +5,7 @@ def to_str_time(seconds, minutes, hours):
     if hours > 99:
         raise ValueError
 
+    # TODO 01:02:03 but now 1:2:3
     return f'{hours}:{minutes}:{seconds}'
 
 
