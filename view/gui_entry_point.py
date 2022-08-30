@@ -5,7 +5,7 @@ from slider import Slider
 from utils import configure_button
 from audio_editor_main_dialog import AudioEditorDialog
 from controller.gui_controller import GetAudioInfoWorker
-from model.utils import to_str_time
+from model.time_utils import to_str_time
 
 from PyQt5.QtCore import Qt, QUrl, QTimer, QThreadPool, QMimeData
 from PyQt5.QtGui import QFont

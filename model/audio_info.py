@@ -1,4 +1,4 @@
-from model.utils import from_str_time_to_int_seconds
+from model.time_utils import from_str_time_to_int_seconds
 
 
 class AudioInfo:

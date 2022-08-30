@@ -1,7 +1,7 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QSlider
 
-from model.utils import to_str_time
+from model.time_utils import to_str_time
 
 
 class Slider(QSlider):
