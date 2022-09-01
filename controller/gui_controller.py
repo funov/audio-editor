@@ -249,8 +249,8 @@ class GetAudioInfoWorker(QRunnable):
 
 class Utils:
     @staticmethod
-    def replace_with_rename(source, destination_folder, new_name):
-        replace_with_rename(source, destination_folder, new_name)
+    def replace_with_rename(source, destination_folder, new_name=None):
+        return replace_with_rename(source, destination_folder, new_name)
 
     @staticmethod
     def to_str_time(seconds, minutes, hours):
