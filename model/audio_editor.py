@@ -23,6 +23,7 @@ class AudioEditor:
             end_time=None,
             is_debug=False
     ):
+        # TODO через None
         input_audio_info = AudioEditor.get_audio_info(input_audio_path, is_debug)
         int_start_time = from_str_time_to_int_seconds(start_time)
 
@@ -34,7 +35,7 @@ class AudioEditor:
 
             if not (int_start_time < int_end_time <= input_audio_info.int_duration):
                 raise ValueError
-            
+
         if end_time is None:
             command = f'ffmpeg -ss {start_time} -i {input_audio_path} {output_audio_path}'
         else:
@@ -162,12 +163,8 @@ class AudioEditor:
             input_audio_path,
             output_audio_path,
             speed,
-            start_s=None,
-            start_m=None,
-            start_h=None,
-            duration_s=None,
-            duration_m=None,
-            duration_h=None,
+            start_time,
+            end_time,
             is_debug=False
     ):
         AudioEditor._change_fragment_value(
@@ -175,12 +172,8 @@ class AudioEditor:
             output_audio_path,
             speed,
             AudioEditor.change_speed,
-            start_s,
-            start_m,
-            start_h,
-            duration_s,
-            duration_m,
-            duration_h,
+            start_time,
+            end_time,
             is_debug
         )
 
@@ -200,12 +193,8 @@ class AudioEditor:
             input_audio_path,
             output_audio_path,
             volume,
-            start_s=None,
-            start_m=None,
-            start_h=None,
-            duration_s=None,
-            duration_m=None,
-            duration_h=None,
+            start_time,
+            end_time,
             is_debug=False
     ):
         AudioEditor._change_fragment_value(
@@ -213,12 +202,8 @@ class AudioEditor:
             output_audio_path,
             volume,
             AudioEditor.change_volume,
-            start_s,
-            start_m,
-            start_h,
-            duration_s,
-            duration_m,
-            duration_h,
+            start_time,
+            end_time,
             is_debug
         )
 
@@ -241,12 +226,8 @@ class AudioEditor:
             output_audio_path,
             value,
             change_value_func,
-            start_s=None,
-            start_m=None,
-            start_h=None,
-            duration_s=None,
-            duration_m=None,
-            duration_h=None,
+            start_time,
+            end_time,
             is_debug=False
     ):
         current_sep = AudioEditor._get_current_sep(output_audio_path)
@@ -261,17 +242,13 @@ class AudioEditor:
                 input_audio_path,
                 output_audio_folder,
                 current_sep,
-                start_s,
-                start_m,
-                start_h,
-                duration_s,
-                duration_m,
-                duration_h,
+                start_time,
+                end_time,
                 is_debug
             )
 
         changed_value_file_name \
-            = output_audio_folder + current_sep + get_file_name()
+            = f'{output_audio_folder}{current_sep}{get_file_name()}.mp3'
 
         change_value_func(
             second_file_name,
@@ -279,6 +256,8 @@ class AudioEditor:
             value,
             is_debug=is_debug
         )
+
+        time.sleep(1)
 
         AudioEditor.glue_audio(
             [first_file_name, changed_value_file_name, third_file_name],

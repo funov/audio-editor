@@ -128,39 +128,31 @@ class ChangeSpeedWorker(QRunnable):
             input_audio_path,
             output_audio_path,
             speed,
-            start_s=None,
-            start_m=None,
-            start_h=None,
-            duration_s=None,
-            duration_m=None,
-            duration_h=None
+            start_time,
+            end_time
     ):
         super(ChangeSpeedWorker, self).__init__()
         self.input_audio_path = input_audio_path
         self.output_audio_path = output_audio_path
         self.speed = speed
-        self.start_s = start_s
-        self.start_m = start_m
-        self.start_h = start_h
-        self.duration_s = duration_s,
-        self.duration_m = duration_m
-        self.duration_h = duration_h
+        self.start_time = start_time
+        self.end_time = end_time
         self.signals = WorkerSignals()
 
     @pyqtSlot()
     def run(self):
-        AudioEditor.change_fragment_speed(
-            self.input_audio_path,
-            self.output_audio_path,
-            self.speed,
-            self.start_s,
-            self.start_m,
-            self.start_h,
-            self.duration_s,
-            self.duration_m,
-            self.duration_h,
-            IS_DEBUG
-        )
+        try:
+            AudioEditor.change_fragment_speed(
+                self.input_audio_path,
+                self.output_audio_path,
+                self.speed,
+                self.start_time,
+                self.end_time,
+                IS_DEBUG
+            )
+        except ValueError:
+            self.signals.error.emit()
+            return
         self.signals.finished.emit()
 
 
@@ -170,39 +162,31 @@ class ChangeVolumeWorker(QRunnable):
             input_audio_path,
             output_audio_path,
             volume,
-            start_s=None,
-            start_m=None,
-            start_h=None,
-            duration_s=None,
-            duration_m=None,
-            duration_h=None
+            start_time,
+            end_time
     ):
         super(ChangeVolumeWorker, self).__init__()
         self.input_audio_path = input_audio_path
         self.output_audio_path = output_audio_path
         self.volume = volume
-        self.start_s = start_s
-        self.start_m = start_m
-        self.start_h = start_h
-        self.duration_s = duration_s,
-        self.duration_m = duration_m
-        self.duration_h = duration_h
+        self.start_time = start_time
+        self.end_time = end_time
         self.signals = WorkerSignals()
 
     @pyqtSlot()
     def run(self):
-        AudioEditor.change_fragment_volume(
-            self.input_audio_path,
-            self.output_audio_path,
-            self.volume,
-            self.start_s,
-            self.start_m,
-            self.start_h,
-            self.duration_s,
-            self.duration_m,
-            self.duration_h,
-            IS_DEBUG
-        )
+        try:
+            AudioEditor.change_fragment_volume(
+                self.input_audio_path,
+                self.output_audio_path,
+                self.volume,
+                self.start_time,
+                self.end_time,
+                IS_DEBUG
+            )
+        except ValueError:
+            self.signals.error.emit()
+            return
         self.signals.finished.emit()
 
 
