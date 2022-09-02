@@ -20,17 +20,25 @@ class AudioEditor:
             input_audio_path,
             output_audio_path,
             start_time,
-            end_time,
+            end_time=None,
             is_debug=False
     ):
         input_audio_info = AudioEditor.get_audio_info(input_audio_path, is_debug)
         int_start_time = from_str_time_to_int_seconds(start_time)
-        int_end_time = from_str_time_to_int_seconds(end_time)
 
-        if not (0 <= int_start_time < int_end_time <= input_audio_info.int_duration):
+        if not (0 <= int_start_time <= input_audio_info.int_duration):
             raise ValueError
 
-        command = f'ffmpeg -ss {start_time} -to {end_time} -i {input_audio_path} {output_audio_path}'
+        if end_time is not None:
+            int_end_time = from_str_time_to_int_seconds(end_time)
+
+            if not (int_start_time < int_end_time <= input_audio_info.int_duration):
+                raise ValueError
+            
+        if end_time is None:
+            command = f'ffmpeg -ss {start_time} -i {input_audio_path} {output_audio_path}'
+        else:
+            command = f'ffmpeg -ss {start_time} -to {end_time} -i {input_audio_path} {output_audio_path}'
 
         AudioEditor._execute_command(command, is_debug)
 
@@ -95,12 +103,8 @@ class AudioEditor:
     def reverse_fragment_audio(
             input_audio_path,
             output_audio_path,
-            start_s=None,
-            start_m=None,
-            start_h=None,
-            duration_s=None,
-            duration_m=None,
-            duration_h=None,
+            start_time,
+            end_time,
             is_debug=False
     ):
         current_sep = AudioEditor._get_current_sep(output_audio_path)
@@ -115,23 +119,23 @@ class AudioEditor:
                 input_audio_path,
                 output_audio_folder,
                 current_sep,
-                start_s,
-                start_m,
-                start_h,
-                duration_s,
-                duration_m,
-                duration_h,
+                start_time,
+                end_time,
                 is_debug
             )
 
         reversed_file_name \
-            = output_audio_folder + current_sep + get_file_name()
+            = f'{output_audio_folder}{current_sep}{get_file_name()}.mp3'
+
+        time.sleep(1)
 
         AudioEditor.reverse_audio(
             second_file_name,
             reversed_file_name,
             is_debug=is_debug
         )
+
+        time.sleep(1)
 
         AudioEditor.glue_audio(
             [first_file_name, reversed_file_name, third_file_name],
@@ -287,46 +291,36 @@ class AudioEditor:
             input_audio_path,
             output_audio_folder,
             current_sep,
-            start_s,
-            start_m,
-            start_h,
-            duration_s,
-            duration_m,
-            duration_h,
+            start_time,
+            end_time,
             is_debug
     ):
         first_file_name \
-            = output_audio_folder + current_sep + get_file_name()
-        second_file_name \
-            = output_audio_folder + current_sep + get_file_name()
-        third_file_name \
-            = output_audio_folder + current_sep + get_file_name()
-
+            = f'{output_audio_folder}{current_sep}{get_file_name()}.mp3'
         AudioEditor.crop_audio(
             input_audio_path,
             first_file_name,
-            duration_s=start_s,
-            duration_m=start_m,
-            duration_h=start_h,
+            '00:00:00',
+            start_time,
             is_debug=is_debug
         )
+
+        second_file_name \
+            = f'{output_audio_folder}{current_sep}{get_file_name()}.mp3'
         AudioEditor.crop_audio(
             input_audio_path,
             second_file_name,
-            start_s=start_s,
-            start_m=start_m,
-            start_h=start_h,
-            duration_s=duration_s,
-            duration_m=duration_m,
-            duration_h=duration_h,
+            start_time,
+            end_time,
             is_debug=is_debug
         )
+
+        third_file_name \
+            = f'{output_audio_folder}{current_sep}{get_file_name()}.mp3'
         AudioEditor.crop_audio(
             input_audio_path,
             third_file_name,
-            start_s=duration_s,
-            start_m=duration_m,
-            start_h=duration_h,
+            end_time,
             is_debug=is_debug
         )
 

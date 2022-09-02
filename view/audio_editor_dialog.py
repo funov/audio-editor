@@ -199,19 +199,26 @@ class AudioEditorDialog(QDialog):
 
         self.current_edit_widgets = [
             self.configure_combo_box(),
-            QLineEdit(),
-            QLineEdit(),
+            QLineEdit('00:00:00'),
+            QLineEdit('00:00:00'),
             configure_button(
                 self.main_window,
                 self.apply_reverse,
                 name='Развернуть'
             ),
+            QLabel('Начало'),
+            QLabel('Конец')
         ]
 
-        for i in range(3):
-            self.main_window.grid_layout.addWidget(self.current_edit_widgets[i], 4, i * 3, 1, 3)
+        self.current_edit_widgets[1].setInputMask("00:00:00")
 
-        self.main_window.grid_layout.addWidget(self.current_edit_widgets[3], 5, 0, 1, 9)
+        for i in range(3):
+            self.main_window.grid_layout.addWidget(self.current_edit_widgets[i], 5, i * 3, 1, 3)
+
+        self.main_window.grid_layout.addWidget(self.current_edit_widgets[3], 6, 0, 1, 9)
+
+        self.main_window.grid_layout.addWidget(self.current_edit_widgets[4], 4, 3, 1, 3)
+        self.main_window.grid_layout.addWidget(self.current_edit_widgets[5], 4, 6, 1, 3)
 
         self.hide()
 
@@ -365,7 +372,22 @@ class AudioEditorDialog(QDialog):
         self.main_window.threadpool.start(worker)
 
     def apply_reverse(self):
-        pass
+        input_audio_path = self.current_edit_widgets[0].currentText()
+        start_time = self.current_edit_widgets[1].text()
+        end_time = self.current_edit_widgets[2].text()
+
+        self.name = gui_controller.Utils.get_file_name()
+
+        worker = gui_controller.ReverseAudioWorker(
+            input_audio_path,
+            f'{self.main_window.temp_dir}{os.sep}{self.name}.mp3',
+            start_time,
+            end_time
+        )
+
+        worker.signals.finished.connect(self.add_result_to_audio_list)
+        worker.signals.error.connect(self.time_error)
+        self.main_window.threadpool.start(worker)
 
     def apply_speed(self):
         pass
