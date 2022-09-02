@@ -1,50 +1,36 @@
 import os
+import time
 
 from model.command_line_executor import CommandLineExecutor
 from model.audio_info import AudioInfo
-from model.time_utils import to_str_time, get_file_name
+from model.time_utils import get_file_name, from_str_time_to_int_seconds
 
 
 class AudioEditor:
     @staticmethod
     def glue_audio(input_audio_paths, output_audio_path, is_debug=False):
+        # TODO Попробовать .mp3 и .wav
         command = f'ffmpeg -i "concat:{"|".join(input_audio_paths)}" ' \
                   f'{output_audio_path}'
+
         AudioEditor._execute_command(command, is_debug)
 
     @staticmethod
     def crop_audio(
             input_audio_path,
             output_audio_path,
-            start_s=None,
-            start_m=None,
-            start_h=None,
-            duration_s=None,
-            duration_m=None,
-            duration_h=None,
+            start_time,
+            end_time,
             is_debug=False
     ):
-        if start_s is None or start_m is None or start_h is None:
-            start_time = None
-        else:
-            start_time = to_str_time(start_s, start_m, start_h)
+        input_audio_info = AudioEditor.get_audio_info(input_audio_path, is_debug)
+        int_start_time = from_str_time_to_int_seconds(start_time)
+        int_end_time = from_str_time_to_int_seconds(end_time)
 
-        if duration_s is None or duration_m is None or duration_h is None:
-            duration_time = None
-        else:
-            duration_time = to_str_time(duration_s, duration_m, duration_h)
+        if not (0 <= int_start_time < int_end_time <= input_audio_info.int_duration):
+            raise ValueError
 
-        if start_time is None and duration_time is None:
-            command = f'ffmpeg -i {input_audio_path} {output_audio_path}'
-        elif start_time is None:
-            command = f'ffmpeg -i {input_audio_path} ' \
-                      f'-t {duration_time} {output_audio_path}'
-        elif duration_time is None:
-            command = f'ffmpeg -ss {start_time} -i {input_audio_path} ' \
-                      f'{output_audio_path}'
-        else:
-            command = f'ffmpeg -ss {start_time} -i {input_audio_path} ' \
-                      f'-t {duration_time} {output_audio_path}'
+        command = f'ffmpeg -ss {start_time} -to {end_time} -i {input_audio_path} {output_audio_path}'
 
         AudioEditor._execute_command(command, is_debug)
 
@@ -53,11 +39,15 @@ class AudioEditor:
             target_audio_path,
             input_audio_path,
             output_audio_path,
-            paste_s,
-            paste_m,
-            paste_h,
+            paste_time,
             is_debug=False
     ):
+        target_audio_info = AudioEditor.get_audio_info(target_audio_path, is_debug)
+        int_paste_time = from_str_time_to_int_seconds(paste_time)
+
+        if not (0 <= int_paste_time <= target_audio_info.int_duration):
+            raise ValueError
+
         current_sep = AudioEditor._get_current_sep(output_audio_path)
 
         output_audio_folder = AudioEditor._get_folder(
@@ -66,29 +56,31 @@ class AudioEditor:
         )
 
         first_file_name \
-            = output_audio_folder + current_sep + get_file_name()
-        second_file_name \
-            = output_audio_folder + current_sep + get_file_name()
+            = f'{output_audio_folder}{current_sep}{get_file_name()}.mp3'
 
         AudioEditor.crop_audio(
             target_audio_path,
             first_file_name,
-            duration_s=paste_s,
-            duration_m=paste_m,
-            duration_h=paste_h,
-            is_debug=is_debug
-        )
-        AudioEditor.crop_audio(
-            target_audio_path,
-            second_file_name,
-            start_s=paste_s,
-            start_m=paste_m,
-            start_h=paste_h,
+            "00:00:00",
+            paste_time,
             is_debug=is_debug
         )
 
+        second_file_name \
+            = f'{output_audio_folder}{current_sep}{get_file_name()}.mp3'
+
+        AudioEditor.crop_audio(
+            target_audio_path,
+            second_file_name,
+            paste_time,
+            target_audio_info.str_duration,
+            is_debug=is_debug
+        )
+
+        time.sleep(3)
+
         AudioEditor.glue_audio(
-            [first_file_name, input_audio_path, second_file_name],
+            [first_file_name, input_audio_path.replace('/', current_sep), second_file_name],
             output_audio_path,
             is_debug=is_debug
         )
@@ -372,6 +364,6 @@ class AudioEditor:
     @staticmethod
     def _get_folder(path, current_sep):
         folder_list = path.split(current_sep)[:-1]
-        folder = ''.join(folder_list)
+        folder = f'{current_sep}'.join(folder_list)
 
         return folder

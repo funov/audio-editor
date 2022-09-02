@@ -34,31 +34,29 @@ class CropAudioWorker(QRunnable):
             self,
             input_audio_path,
             output_audio_path,
-            start_s,
-            start_m,
-            start_h,
-            duration
+            start_time,
+            end_time
     ):
         super(CropAudioWorker, self).__init__()
         self.input_audio_path = input_audio_path
         self.output_audio_path = output_audio_path
-        self.start_s = start_s
-        self.start_m = start_m
-        self.start_h = start_h
-        self.duration = duration
+        self.start_time = start_time
+        self.end_time = end_time
         self.signals = WorkerSignals()
 
     @pyqtSlot()
     def run(self):
-        AudioEditor.crop_audio(
-            self.input_audio_path,
-            self.output_audio_path,
-            self.start_s,
-            self.start_m,
-            self.start_h,
-            self.duration,
-            IS_DEBUG
-        )
+        try:
+            AudioEditor.crop_audio(
+                self.input_audio_path,
+                self.output_audio_path,
+                self.start_time,
+                self.end_time,
+                IS_DEBUG
+            )
+        except ValueError:
+            self.signals.error.emit()
+            return
         self.signals.finished.emit()
 
 
@@ -68,30 +66,28 @@ class PasteAudioWorker(QRunnable):
             target_audio_path,
             input_audio_path,
             output_audio_path,
-            paste_s,
-            paste_m,
-            paste_h
+            paste_time
     ):
         super(PasteAudioWorker, self).__init__()
         self.target_audio_path = target_audio_path
         self.input_audio_path = input_audio_path
         self.output_audio_path = output_audio_path
-        self.paste_s = paste_s
-        self.paste_m = paste_m
-        self.paste_h = paste_h
+        self.paste_time = paste_time
         self.signals = WorkerSignals()
 
     @pyqtSlot()
     def run(self):
-        AudioEditor.paste_audio(
-            self.target_audio_path,
-            self.input_audio_path,
-            self.output_audio_path,
-            self.paste_s,
-            self.paste_m,
-            self.paste_h,
-            IS_DEBUG
-        )
+        try:
+            AudioEditor.paste_audio(
+                self.target_audio_path,
+                self.input_audio_path,
+                self.output_audio_path,
+                self.paste_time,
+                IS_DEBUG
+            )
+        except ValueError:
+            self.signals.error.emit()
+            return
         self.signals.finished.emit()
 
 
@@ -268,3 +264,4 @@ class Utils:
 class WorkerSignals(QObject):
     result = pyqtSignal(object)
     finished = pyqtSignal()
+    error = pyqtSignal()
