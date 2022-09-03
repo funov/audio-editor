@@ -207,15 +207,15 @@ class Window(QMainWindow):
         self.reset_audio_line()
 
     def move_forward(self):
-        self.audio_line.setValue(self.audio_line.value() + 1000)
-        self.player.setPosition(self.player.position() + 1000)
+        self.audio_line.setValue(self.audio_line.value() + 10000)
+        self.player.setPosition(self.player.position() + 10000)
         self.user_timer.setText(
             gui_controller.to_str_time(self.audio_line.value() // 1000, 0, 0)
         )
 
     def move_backward(self):
-        self.audio_line.setValue(self.audio_line.value() - 1000)
-        self.player.setPosition(self.player.position() - 1000)
+        self.audio_line.setValue(self.audio_line.value() - 10000)
+        self.player.setPosition(self.player.position() - 10000)
         self.user_timer.setText(
             gui_controller.to_str_time(self.audio_line.value() // 1000, 0, 0)
         )
