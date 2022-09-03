@@ -9,7 +9,6 @@ from model.time_utils import get_file_name, from_str_time_to_int_seconds
 class AudioEditor:
     @staticmethod
     def glue_audio(input_audio_paths, output_audio_path, is_debug=False):
-        # TODO Попробовать .mp3 и .wav
         command = f'ffmpeg -i "concat:{"|".join(input_audio_paths)}" ' \
                   f'{output_audio_path}'
 
@@ -19,27 +18,43 @@ class AudioEditor:
     def crop_audio(
             input_audio_path,
             output_audio_path,
-            start_time,
+            start_time=None,
             end_time=None,
             is_debug=False
     ):
-        # TODO через None
-        input_audio_info = AudioEditor.get_audio_info(input_audio_path, is_debug)
-        int_start_time = from_str_time_to_int_seconds(start_time)
+        input_audio_info = AudioEditor.get_audio_info(
+            input_audio_path,
+            is_debug
+        )
 
-        if not (0 <= int_start_time <= input_audio_info.int_duration):
-            raise ValueError
-
-        if end_time is not None:
+        if start_time is None and end_time is None:
+            command = f'ffmpeg -i {input_audio_path} {output_audio_path}'
+        elif start_time is not None and end_time is not None:
+            int_start_time = from_str_time_to_int_seconds(start_time)
             int_end_time = from_str_time_to_int_seconds(end_time)
 
-            if not (int_start_time < int_end_time <= input_audio_info.int_duration):
+            if not (0 <= int_start_time < int_end_time
+                    <= input_audio_info.int_duration):
                 raise ValueError
 
-        if end_time is None:
-            command = f'ffmpeg -ss {start_time} -i {input_audio_path} {output_audio_path}'
+            command = f'ffmpeg -ss {start_time} -to {end_time} -i ' \
+                      f'{input_audio_path} {output_audio_path}'
+        elif start_time is None:
+            int_end_time = from_str_time_to_int_seconds(end_time)
+
+            if not (0 <= int_end_time <= input_audio_info.int_duration):
+                raise ValueError
+
+            command = f'ffmpeg -to {end_time} -i {input_audio_path} ' \
+                      f'{output_audio_path}'
         else:
-            command = f'ffmpeg -ss {start_time} -to {end_time} -i {input_audio_path} {output_audio_path}'
+            int_start_time = from_str_time_to_int_seconds(start_time)
+
+            if not (0 <= int_start_time <= input_audio_info.int_duration):
+                raise ValueError
+
+            command = f'ffmpeg -ss {start_time} -i {input_audio_path} ' \
+                      f'{output_audio_path}'
 
         AudioEditor._execute_command(command, is_debug)
 
@@ -51,7 +66,10 @@ class AudioEditor:
             paste_time,
             is_debug=False
     ):
-        target_audio_info = AudioEditor.get_audio_info(target_audio_path, is_debug)
+        target_audio_info = AudioEditor.get_audio_info(
+            target_audio_path,
+            is_debug
+        )
         int_paste_time = from_str_time_to_int_seconds(paste_time)
 
         if not (0 <= int_paste_time <= target_audio_info.int_duration):
@@ -86,10 +104,14 @@ class AudioEditor:
             is_debug=is_debug
         )
 
-        time.sleep(3)
+        time.sleep(1)
 
         AudioEditor.glue_audio(
-            [first_file_name, input_audio_path.replace('/', current_sep), second_file_name],
+            [
+                first_file_name,
+                input_audio_path.replace('/', current_sep),
+                second_file_name
+            ],
             output_audio_path,
             is_debug=is_debug
         )
@@ -104,8 +126,8 @@ class AudioEditor:
     def reverse_fragment_audio(
             input_audio_path,
             output_audio_path,
-            start_time,
-            end_time,
+            start_time=None,
+            end_time=None,
             is_debug=False
     ):
         current_sep = AudioEditor._get_current_sep(output_audio_path)
@@ -138,10 +160,12 @@ class AudioEditor:
 
         time.sleep(1)
 
-        AudioEditor.glue_audio(
-            [first_file_name, reversed_file_name, third_file_name],
+        AudioEditor._glue_three_parts(
+            first_file_name,
+            reversed_file_name,
+            third_file_name,
             output_audio_path,
-            is_debug=is_debug
+            is_debug
         )
 
     @staticmethod
@@ -151,7 +175,7 @@ class AudioEditor:
             speed,
             is_debug=False
     ):
-        if 99 < speed < 0.5:
+        if 10 < speed < 0.5:
             raise ValueError
 
         command = f'ffmpeg -i {input_audio_path} -af atempo={speed} ' \
@@ -163,8 +187,8 @@ class AudioEditor:
             input_audio_path,
             output_audio_path,
             speed,
-            start_time,
-            end_time,
+            start_time=None,
+            end_time=None,
             is_debug=False
     ):
         AudioEditor._change_fragment_value(
@@ -184,6 +208,9 @@ class AudioEditor:
             volume,
             is_debug=False
     ):
+        if not (-30 < volume < 30):
+            raise ValueError
+
         command = f'ffmpeg -i {input_audio_path} -af "volume={volume}dB" ' \
                   f'{output_audio_path}'
         AudioEditor._execute_command(command, is_debug)
@@ -193,8 +220,8 @@ class AudioEditor:
             input_audio_path,
             output_audio_path,
             volume,
-            start_time,
-            end_time,
+            start_time=None,
+            end_time=None,
             is_debug=False
     ):
         AudioEditor._change_fragment_value(
@@ -259,8 +286,31 @@ class AudioEditor:
 
         time.sleep(1)
 
+        AudioEditor._glue_three_parts(
+            first_file_name,
+            changed_value_file_name,
+            third_file_name,
+            output_audio_path,
+            is_debug
+        )
+
+    @staticmethod
+    def _glue_three_parts(
+            first_file_name,
+            second_file_name,
+            third_file_name,
+            output_audio_path,
+            is_debug=False
+    ):
+        glue_paths = []
+        if first_file_name is not None:
+            glue_paths.append(first_file_name)
+        glue_paths.append(second_file_name)
+        if third_file_name is not None:
+            glue_paths.append(third_file_name)
+
         AudioEditor.glue_audio(
-            [first_file_name, changed_value_file_name, third_file_name],
+            glue_paths,
             output_audio_path,
             is_debug=is_debug
         )
@@ -272,17 +322,21 @@ class AudioEditor:
             current_sep,
             start_time,
             end_time,
-            is_debug
+            is_debug=False
     ):
-        first_file_name \
-            = f'{output_audio_folder}{current_sep}{get_file_name()}.mp3'
-        AudioEditor.crop_audio(
-            input_audio_path,
-            first_file_name,
-            '00:00:00',
-            start_time,
-            is_debug=is_debug
-        )
+        first_file_name = None
+        third_file_name = None
+
+        if start_time is not None:
+            first_file_name \
+                = f'{output_audio_folder}{current_sep}{get_file_name()}.mp3'
+            AudioEditor.crop_audio(
+                input_audio_path,
+                first_file_name,
+                None,
+                start_time,
+                is_debug=is_debug
+            )
 
         second_file_name \
             = f'{output_audio_folder}{current_sep}{get_file_name()}.mp3'
@@ -294,14 +348,16 @@ class AudioEditor:
             is_debug=is_debug
         )
 
-        third_file_name \
-            = f'{output_audio_folder}{current_sep}{get_file_name()}.mp3'
-        AudioEditor.crop_audio(
-            input_audio_path,
-            third_file_name,
-            end_time,
-            is_debug=is_debug
-        )
+        if end_time is not None:
+            third_file_name \
+                = f'{output_audio_folder}{current_sep}{get_file_name()}.mp3'
+            AudioEditor.crop_audio(
+                input_audio_path,
+                third_file_name,
+                end_time,
+                None,
+                is_debug=is_debug
+            )
 
         return first_file_name, second_file_name, third_file_name
 

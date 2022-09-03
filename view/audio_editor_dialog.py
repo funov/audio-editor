@@ -128,10 +128,19 @@ class AudioEditorDialog(QDialog):
             self.current_edit_widgets[i + 1].hide()
 
         for i in range(4):
-            self.main_window.grid_layout.addWidget(self.current_edit_widgets[i], 4, i * 2, 1, 2)
+            self.main_window.grid_layout.addWidget(
+                self.current_edit_widgets[i],
+                4, i * 2, 1, 2
+            )
 
-        self.main_window.grid_layout.addWidget(self.current_edit_widgets[4], 4, 8, 1, 1)
-        self.main_window.grid_layout.addWidget(self.current_edit_widgets[5], 5, 0, 1, 9)
+        self.main_window.grid_layout.addWidget(
+            self.current_edit_widgets[4],
+            4, 8, 1, 1
+        )
+        self.main_window.grid_layout.addWidget(
+            self.current_edit_widgets[5],
+            5, 0, 1, 9
+        )
 
         self.hide()
 
@@ -147,6 +156,7 @@ class AudioEditorDialog(QDialog):
                 self.apply_crop,
                 name='Разрезать'
             ),
+            QLabel('Оставьте 00:00:00, если не хотите ничего менять'),
             QLabel('Начало'),
             QLabel('Конец')
         ]
@@ -155,12 +165,28 @@ class AudioEditorDialog(QDialog):
             self.current_edit_widgets[i + 1].setInputMask("00:00:00")
 
         for i in range(3):
-            self.main_window.grid_layout.addWidget(self.current_edit_widgets[i], 5, i * 3, 1, 3)
+            self.main_window.grid_layout.addWidget(
+                self.current_edit_widgets[i],
+                5, i * 3, 1, 3
+            )
 
-        self.main_window.grid_layout.addWidget(self.current_edit_widgets[3], 6, 0, 1, 9)
+        self.main_window.grid_layout.addWidget(
+            self.current_edit_widgets[3],
+            6, 0, 1, 9
+        )
 
-        self.main_window.grid_layout.addWidget(self.current_edit_widgets[4], 4, 3, 1, 3)
-        self.main_window.grid_layout.addWidget(self.current_edit_widgets[5], 4, 6, 1, 3)
+        self.main_window.grid_layout.addWidget(
+            self.current_edit_widgets[4],
+            4, 0, 1, 3
+        )
+        self.main_window.grid_layout.addWidget(
+            self.current_edit_widgets[5],
+            4, 3, 1, 3
+        )
+        self.main_window.grid_layout.addWidget(
+            self.current_edit_widgets[6],
+            4, 6, 1, 3
+        )
 
         self.hide()
 
@@ -184,13 +210,28 @@ class AudioEditorDialog(QDialog):
         self.current_edit_widgets[1].setInputMask("00:00:00")
 
         for i in range(3):
-            self.main_window.grid_layout.addWidget(self.current_edit_widgets[i], 5, i * 3, 1, 3)
+            self.main_window.grid_layout.addWidget(
+                self.current_edit_widgets[i],
+                5, i * 3, 1, 3
+            )
 
-        self.main_window.grid_layout.addWidget(self.current_edit_widgets[3], 6, 0, 1, 9)
+        self.main_window.grid_layout.addWidget(
+            self.current_edit_widgets[3],
+            6, 0, 1, 9
+        )
 
-        self.main_window.grid_layout.addWidget(self.current_edit_widgets[4], 4, 0, 1, 3)
-        self.main_window.grid_layout.addWidget(self.current_edit_widgets[5], 4, 3, 1, 3)
-        self.main_window.grid_layout.addWidget(self.current_edit_widgets[6], 4, 6, 1, 3)
+        self.main_window.grid_layout.addWidget(
+            self.current_edit_widgets[4],
+            4, 0, 1, 3
+        )
+        self.main_window.grid_layout.addWidget(
+            self.current_edit_widgets[5],
+            4, 3, 1, 3
+        )
+        self.main_window.grid_layout.addWidget(
+            self.current_edit_widgets[6],
+            4, 6, 1, 3
+        )
 
         self.hide()
 
@@ -206,6 +247,7 @@ class AudioEditorDialog(QDialog):
                 self.apply_reverse,
                 name='Развернуть'
             ),
+            QLabel('Оставьте 00:00:00, если хотите перевернуть полностью'),
             QLabel('Начало'),
             QLabel('Конец')
         ]
@@ -213,12 +255,28 @@ class AudioEditorDialog(QDialog):
         self.current_edit_widgets[1].setInputMask("00:00:00")
 
         for i in range(3):
-            self.main_window.grid_layout.addWidget(self.current_edit_widgets[i], 5, i * 3, 1, 3)
+            self.main_window.grid_layout.addWidget(
+                self.current_edit_widgets[i],
+                5, i * 3, 1, 3
+            )
 
-        self.main_window.grid_layout.addWidget(self.current_edit_widgets[3], 6, 0, 1, 9)
+        self.main_window.grid_layout.addWidget(
+            self.current_edit_widgets[3],
+            6, 0, 1, 9
+        )
 
-        self.main_window.grid_layout.addWidget(self.current_edit_widgets[4], 4, 3, 1, 3)
-        self.main_window.grid_layout.addWidget(self.current_edit_widgets[5], 4, 6, 1, 3)
+        self.main_window.grid_layout.addWidget(
+            self.current_edit_widgets[4],
+            4, 0, 1, 3
+        )
+        self.main_window.grid_layout.addWidget(
+            self.current_edit_widgets[5],
+            4, 3, 1, 3
+        )
+        self.main_window.grid_layout.addWidget(
+            self.current_edit_widgets[6],
+            4, 6, 1, 3
+        )
 
         self.hide()
 
@@ -227,15 +285,22 @@ class AudioEditorDialog(QDialog):
 
         self.current_edit_widgets = [
             self.configure_combo_box(),
-            QLineEdit(),
-            QLineEdit(),
-            QLineEdit(),
+            QLineEdit("00:00:00"),
+            QLineEdit("00:00:00"),
+            QLineEdit("00:00:00"),
             configure_button(
                 self.main_window,
                 self.apply_speed,
                 name='Изменить скорость'
             ),
+            QLabel('Оставьте 00:00:00, если хотите изменить полностью'),
+            QLabel('Начало'),
+            QLabel('Конец'),
+            QLabel('Значение от 0.5 до 10 раз'),
         ]
+
+        for i in range(3):
+            self.current_edit_widgets[i + 1].setInputMask("00:00:00")
 
         self.show_change_value_panel()
 
@@ -246,27 +311,51 @@ class AudioEditorDialog(QDialog):
 
         self.current_edit_widgets = [
             self.configure_combo_box(),
-            QLineEdit(),
-            QLineEdit(),
-            QLineEdit(),
+            QLineEdit("00:00:00"),
+            QLineEdit("00:00:00"),
+            QLineEdit("00:00:00"),
             configure_button(
                 self.main_window,
                 self.apply_volume,
                 name='Изменить громкость'
             ),
+            QLabel('Оставьте 00:00:00, если хотите изменить полностью'),
+            QLabel('Начало'),
+            QLabel('Конец'),
+            QLabel('Значение от -30дБ до 30дБ'),
         ]
+
+        for i in range(3):
+            self.current_edit_widgets[i + 1].setInputMask("00:00:00")
 
         self.show_change_value_panel()
 
         self.hide()
 
     def show_change_value_panel(self):
-        self.main_window.grid_layout.addWidget(self.current_edit_widgets[0], 4, 0, 1, 3)
+        self.main_window.grid_layout.addWidget(
+            self.current_edit_widgets[0],
+            5, 0, 1, 3
+        )
+        self.main_window.grid_layout.addWidget(
+            self.current_edit_widgets[5],
+            4, 0, 1, 3
+        )
 
         for i in range(3):
-            self.main_window.grid_layout.addWidget(self.current_edit_widgets[i + 1], 4, (i + 1) * 2 + 1, 1, 2)
+            self.main_window.grid_layout.addWidget(
+                self.current_edit_widgets[i + 1],
+                5, (i + 1) * 2 + 1, 1, 2
+            )
+            self.main_window.grid_layout.addWidget(
+                self.current_edit_widgets[i + 6],
+                4, (i + 1) * 2 + 1, 1, 2
+            )
 
-        self.main_window.grid_layout.addWidget(self.current_edit_widgets[4], 5, 0, 1, 9)
+        self.main_window.grid_layout.addWidget(
+            self.current_edit_widgets[4],
+            6, 0, 1, 9
+        )
 
     def show_convert_panel(self):
         self.remove_layout_widgets()
@@ -285,9 +374,18 @@ class AudioEditorDialog(QDialog):
             ),
         ]
 
-        self.main_window.grid_layout.addWidget(self.current_edit_widgets[0], 4, 0, 1, 9)
-        self.main_window.grid_layout.addWidget(self.current_edit_widgets[1], 5, 0, 1, 9)
-        self.main_window.grid_layout.addWidget(self.current_edit_widgets[2], 6, 0, 1, 9)
+        self.main_window.grid_layout.addWidget(
+            self.current_edit_widgets[0],
+            4, 0, 1, 9
+        )
+        self.main_window.grid_layout.addWidget(
+            self.current_edit_widgets[1],
+            5, 0, 1, 9
+        )
+        self.main_window.grid_layout.addWidget(
+            self.current_edit_widgets[2],
+            6, 0, 1, 9
+        )
 
         self.hide()
 
@@ -302,7 +400,10 @@ class AudioEditorDialog(QDialog):
             ),
         ]
 
-        self.main_window.grid_layout.addWidget(self.current_edit_widgets[0], 4, 0, 1, 9)
+        self.main_window.grid_layout.addWidget(
+            self.current_edit_widgets[0],
+            4, 0, 1, 9
+        )
 
         self.hide()
 
@@ -319,7 +420,12 @@ class AudioEditorDialog(QDialog):
                 paths.append(text)
 
         self.name = gui_controller.Utils.get_file_name()
-        worker = gui_controller.GlueAudioWorker(paths, f'{self.main_window.temp_dir}{os.sep}{self.name}.mp3')
+
+        worker = gui_controller.GlueAudioWorker(
+            paths,
+            f'{self.main_window.temp_dir}{os.sep}{self.name}.mp3'
+        )
+
         worker.signals.finished.connect(self.add_result_to_audio_list)
         self.main_window.threadpool.start(worker)
 
@@ -334,22 +440,30 @@ class AudioEditorDialog(QDialog):
         start_time = self.current_edit_widgets[1].text()
         end_time = self.current_edit_widgets[2].text()
 
+        if start_time == '00:00:00':
+            start_time = None
+
+        if end_time == '00:00:00':
+            end_time = None
+
         self.name = gui_controller.Utils.get_file_name()
+
         worker = gui_controller.CropAudioWorker(
             input_audio_path,
             f'{self.main_window.temp_dir}{os.sep}{self.name}.mp3',
             start_time,
             end_time
         )
+
         worker.signals.finished.connect(self.add_result_to_audio_list)
-        worker.signals.error.connect(self.time_error)
+        worker.signals.error.connect(self.value_error)
         self.main_window.threadpool.start(worker)
 
-    def time_error(self):
+    def value_error(self):
         QMessageBox.question(
             self.main_window,
             'Некорректные данные',
-            'Введенное время вышло за границы',
+            'Проверьте введенные значения',
             QMessageBox.Ok
         )
 
@@ -368,13 +482,19 @@ class AudioEditorDialog(QDialog):
         )
 
         worker.signals.finished.connect(self.add_result_to_audio_list)
-        worker.signals.error.connect(self.time_error)
+        worker.signals.error.connect(self.value_error)
         self.main_window.threadpool.start(worker)
 
     def apply_reverse(self):
         input_audio_path = self.current_edit_widgets[0].currentText()
         start_time = self.current_edit_widgets[1].text()
         end_time = self.current_edit_widgets[2].text()
+
+        if start_time == '00:00:00':
+            start_time = None
+
+        if end_time == '00:00:00':
+            end_time = None
 
         self.name = gui_controller.Utils.get_file_name()
 
@@ -386,20 +506,86 @@ class AudioEditorDialog(QDialog):
         )
 
         worker.signals.finished.connect(self.add_result_to_audio_list)
-        worker.signals.error.connect(self.time_error)
+        worker.signals.error.connect(self.value_error)
         self.main_window.threadpool.start(worker)
 
     def apply_speed(self):
-        pass
+        input_audio_path = self.current_edit_widgets[0].currentText()
+        start_time = self.current_edit_widgets[1].text()
+        end_time = self.current_edit_widgets[2].text()
+        speed = self.current_edit_widgets[3].text()
+
+        if start_time == '00:00:00':
+            start_time = None
+
+        if end_time == '00:00:00':
+            end_time = None
+
+        self.name = gui_controller.Utils.get_file_name()
+
+        worker = gui_controller.ChangeSpeedWorker(
+            input_audio_path,
+            f'{self.main_window.temp_dir}{os.sep}{self.name}.mp3',
+            speed,
+            start_time,
+            end_time
+        )
+
+        worker.signals.finished.connect(self.add_result_to_audio_list)
+        worker.signals.error.connect(self.value_error)
+        self.main_window.threadpool.start(worker)
 
     def apply_volume(self):
-        pass
+        input_audio_path = self.current_edit_widgets[0].currentText()
+        start_time = self.current_edit_widgets[1].text()
+        end_time = self.current_edit_widgets[2].text()
+        volume = self.current_edit_widgets[3].text()
+
+        if start_time == '00:00:00':
+            start_time = None
+
+        if end_time == '00:00:00':
+            end_time = None
+
+        self.name = gui_controller.Utils.get_file_name()
+
+        worker = gui_controller.ChangeVolumeWorker(
+            input_audio_path,
+            f'{self.main_window.temp_dir}{os.sep}{self.name}.mp3',
+            volume,
+            start_time,
+            end_time
+        )
+
+        worker.signals.finished.connect(self.add_result_to_audio_list)
+        worker.signals.error.connect(self.value_error)
+        self.main_window.threadpool.start(worker)
 
     def apply_convert_to_mp3(self):
-        pass
+        input_audio_path = self.current_edit_widgets[0].currentText()
+
+        self.name = gui_controller.Utils.get_file_name()
+
+        worker = gui_controller.ConvertAudioWorker(
+            input_audio_path,
+            f'{self.main_window.temp_dir}{os.sep}{self.name}.mp3'
+        )
+
+        worker.signals.finished.connect(self.add_result_to_audio_list)
+        self.main_window.threadpool.start(worker)
 
     def apply_convert_to_wav(self):
-        pass
+        input_audio_path = self.current_edit_widgets[0].currentText()
+
+        self.name = gui_controller.Utils.get_file_name()
+
+        worker = gui_controller.ConvertAudioWorker(
+            input_audio_path,
+            f'{self.main_window.temp_dir}{os.sep}{self.name}.wav'
+        )
+
+        worker.signals.finished.connect(self.add_result_to_audio_list)
+        self.main_window.threadpool.start(worker)
 
     def apply_save(self):
         if self.main_window.temp_dir.replace(os.sep, '/') in self.main_window.audio_list.currentItem().text():
