@@ -1,5 +1,4 @@
 import os
-import time
 
 from model.command_line_executor import CommandLineExecutor
 from model.audio_info import AudioInfo
@@ -104,8 +103,6 @@ class AudioEditor:
             is_debug=is_debug
         )
 
-        time.sleep(1)
-
         AudioEditor.glue_audio(
             [
                 first_file_name,
@@ -150,15 +147,11 @@ class AudioEditor:
         reversed_file_name \
             = f'{output_audio_folder}{current_sep}{get_file_name()}.mp3'
 
-        time.sleep(1)
-
         AudioEditor.reverse_audio(
             second_file_name,
             reversed_file_name,
             is_debug=is_debug
         )
-
-        time.sleep(1)
 
         AudioEditor._glue_three_parts(
             first_file_name,
@@ -284,8 +277,6 @@ class AudioEditor:
             is_debug=is_debug
         )
 
-        time.sleep(1)
-
         AudioEditor._glue_three_parts(
             first_file_name,
             changed_value_file_name,
@@ -338,8 +329,6 @@ class AudioEditor:
                 is_debug=is_debug
             )
 
-        time.sleep(1)
-
         second_file_name \
             = f'{output_audio_folder}{current_sep}{get_file_name()}.mp3'
         AudioEditor.crop_audio(
@@ -349,8 +338,6 @@ class AudioEditor:
             end_time,
             is_debug=is_debug
         )
-
-        time.sleep(1)
 
         if end_time is not None:
             third_file_name \
@@ -362,8 +349,6 @@ class AudioEditor:
                 None,
                 is_debug=is_debug
             )
-
-        time.sleep(1)
 
         return first_file_name, second_file_name, third_file_name
 
