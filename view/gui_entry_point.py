@@ -128,17 +128,18 @@ class Window(QMainWindow):
         path = self.audio_list.currentItem().text()
         if path != self.path:
             self.finish_audio()
-            self.path = path
 
         if not self.is_playing:
             self.change_play_state()
 
-            url = QUrl.fromLocalFile(self.path)
+            url = QUrl.fromLocalFile(path)
             content = QMediaContent(url)
-
             self.player.setMedia(content)
             self.player.setPosition(self.start_play_position)
-            self.get_audio_line_length(self.path)
+
+            self.get_audio_line_length(path)
+            self.path = path
+
             return
 
         self.change_play_state()
