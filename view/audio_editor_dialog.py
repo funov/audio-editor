@@ -287,7 +287,7 @@ class AudioEditorDialog(QDialog):
             self.configure_combo_box(),
             QLineEdit("00:00:00"),
             QLineEdit("00:00:00"),
-            QLineEdit("00:00:00"),
+            QLineEdit(),
             configure_button(
                 self.main_window,
                 self.apply_speed,
@@ -299,7 +299,7 @@ class AudioEditorDialog(QDialog):
             QLabel('Значение от 0.5 до 10 раз'),
         ]
 
-        for i in range(3):
+        for i in range(2):
             self.current_edit_widgets[i + 1].setInputMask("00:00:00")
 
         self.show_change_value_panel()
@@ -313,7 +313,7 @@ class AudioEditorDialog(QDialog):
             self.configure_combo_box(),
             QLineEdit("00:00:00"),
             QLineEdit("00:00:00"),
-            QLineEdit("00:00:00"),
+            QLineEdit(),
             configure_button(
                 self.main_window,
                 self.apply_volume,
@@ -325,7 +325,7 @@ class AudioEditorDialog(QDialog):
             QLabel('Значение от -30дБ до 30дБ'),
         ]
 
-        for i in range(3):
+        for i in range(2):
             self.current_edit_widgets[i + 1].setInputMask("00:00:00")
 
         self.show_change_value_panel()
