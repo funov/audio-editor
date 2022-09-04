@@ -540,7 +540,6 @@ class AudioEditorDialog(QDialog):
     def configure_combo_box(self):
         combo_box = QComboBox()
 
-        combo_box.addItem('')
         for i in range(self.main_window.audio_list.count()):
             combo_box.addItem(self.main_window.audio_list.item(i).text())
 
