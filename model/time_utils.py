@@ -1,4 +1,5 @@
 from time import time
+from random import randint
 
 
 def to_str_time(seconds, minutes, hours):
@@ -22,7 +23,7 @@ def from_str_time_to_int_seconds(str_time):
 
 
 def get_file_name():
-    return str(time()).replace('.', '')
+    return str(time()).replace('.', '') + str(randint(0, 9999))
 
 
 def _add_start_zeros(float_value):

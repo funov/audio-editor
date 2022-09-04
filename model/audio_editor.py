@@ -362,14 +362,6 @@ class AudioEditor:
 
         stdout = result[0]
 
-        # sys.stdin.buffer.flush()
-        # sys.stdout.buffer.flush()
-        # sys.stderr.buffer.flush()
-
-        # sys.stdin.flush()
-        # sys.stdout.flush()
-        # sys.stderr.flush()
-
         if not is_debug:
             return stdout
 
