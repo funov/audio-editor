@@ -419,11 +419,11 @@ class AudioEditorDialog(QDialog):
             if text != '':
                 paths.append(text)
 
-        self.name = gui_controller.Utils.get_file_name()
+        self.name = gui_controller.Utils.get_file_name() + '.mp3'
 
         worker = gui_controller.GlueAudioWorker(
             paths,
-            f'{self.main_window.temp_dir}{os.sep}{self.name}.mp3'
+            f'{self.main_window.temp_dir}{os.sep}{self.name}'
         )
 
         worker.signals.finished.connect(self.add_result_to_audio_list)
@@ -446,11 +446,11 @@ class AudioEditorDialog(QDialog):
         if end_time == '00:00:00':
             end_time = None
 
-        self.name = gui_controller.Utils.get_file_name()
+        self.name = gui_controller.Utils.get_file_name() + '.mp3'
 
         worker = gui_controller.CropAudioWorker(
             input_audio_path,
-            f'{self.main_window.temp_dir}{os.sep}{self.name}.mp3',
+            f'{self.main_window.temp_dir}{os.sep}{self.name}',
             start_time,
             end_time
         )
@@ -472,12 +472,12 @@ class AudioEditorDialog(QDialog):
         input_audio_path = self.current_edit_widgets[2].currentText()
         paste_time = self.current_edit_widgets[1].text()
 
-        self.name = gui_controller.Utils.get_file_name()
+        self.name = gui_controller.Utils.get_file_name() + '.mp3'
 
         worker = gui_controller.PasteAudioWorker(
             target_audio_path,
             input_audio_path,
-            f'{self.main_window.temp_dir}{os.sep}{self.name}.mp3',
+            f'{self.main_window.temp_dir}{os.sep}{self.name}',
             paste_time
         )
 
@@ -496,11 +496,11 @@ class AudioEditorDialog(QDialog):
         if end_time == '00:00:00':
             end_time = None
 
-        self.name = gui_controller.Utils.get_file_name()
+        self.name = gui_controller.Utils.get_file_name() + '.mp3'
 
         worker = gui_controller.ReverseAudioWorker(
             input_audio_path,
-            f'{self.main_window.temp_dir}{os.sep}{self.name}.mp3',
+            f'{self.main_window.temp_dir}{os.sep}{self.name}',
             start_time,
             end_time
         )
@@ -521,11 +521,11 @@ class AudioEditorDialog(QDialog):
         if end_time == '00:00:00':
             end_time = None
 
-        self.name = gui_controller.Utils.get_file_name()
+        self.name = gui_controller.Utils.get_file_name() + '.mp3'
 
         worker = gui_controller.ChangeSpeedWorker(
             input_audio_path,
-            f'{self.main_window.temp_dir}{os.sep}{self.name}.mp3',
+            f'{self.main_window.temp_dir}{os.sep}{self.name}',
             speed,
             start_time,
             end_time
@@ -547,11 +547,11 @@ class AudioEditorDialog(QDialog):
         if end_time == '00:00:00':
             end_time = None
 
-        self.name = gui_controller.Utils.get_file_name()
+        self.name = gui_controller.Utils.get_file_name() + '.mp3'
 
         worker = gui_controller.ChangeVolumeWorker(
             input_audio_path,
-            f'{self.main_window.temp_dir}{os.sep}{self.name}.mp3',
+            f'{self.main_window.temp_dir}{os.sep}{self.name}',
             volume,
             start_time,
             end_time
@@ -564,11 +564,11 @@ class AudioEditorDialog(QDialog):
     def apply_convert_to_mp3(self):
         input_audio_path = self.current_edit_widgets[0].currentText()
 
-        self.name = gui_controller.Utils.get_file_name()
+        self.name = gui_controller.Utils.get_file_name() + '.mp3'
 
         worker = gui_controller.ConvertAudioWorker(
             input_audio_path,
-            f'{self.main_window.temp_dir}{os.sep}{self.name}.mp3'
+            f'{self.main_window.temp_dir}{os.sep}{self.name}'
         )
 
         worker.signals.finished.connect(self.add_result_to_audio_list)
@@ -577,11 +577,11 @@ class AudioEditorDialog(QDialog):
     def apply_convert_to_wav(self):
         input_audio_path = self.current_edit_widgets[0].currentText()
 
-        self.name = gui_controller.Utils.get_file_name()
+        self.name = gui_controller.Utils.get_file_name() + '.wav'
 
         worker = gui_controller.ConvertAudioWorker(
             input_audio_path,
-            f'{self.main_window.temp_dir}{os.sep}{self.name}.wav'
+            f'{self.main_window.temp_dir}{os.sep}{self.name}'
         )
 
         worker.signals.finished.connect(self.add_result_to_audio_list)
@@ -631,7 +631,7 @@ class AudioEditorDialog(QDialog):
         return combo_box
 
     def add_result_to_audio_list(self):
-        audio_name = f'{self.main_window.temp_dir}{os.sep}{self.name}.mp3'.replace(os.sep, '/')
+        audio_name = f'{self.main_window.temp_dir}{os.sep}{self.name}'.replace(os.sep, '/')
 
         for widget in self.current_edit_widgets:
             if str(type(widget)) == "<class 'PyQt5.QtWidgets.QComboBox'>":
