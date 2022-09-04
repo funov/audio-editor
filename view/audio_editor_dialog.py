@@ -379,13 +379,7 @@ class AudioEditorDialog(QDialog):
                 paths.append(text)
 
         if len(paths) == 0:
-            QMessageBox.question(
-                self.main_window,
-                'Некорректные данные',
-                'Похоже вы ничего не выбрали',
-                QMessageBox.Ok
-            )
-
+            self.empty_combo_box()
             return
 
         self.name = gui_controller.Utils.get_file_name() + '.mp3'
@@ -412,10 +406,22 @@ class AudioEditorDialog(QDialog):
             QMessageBox.Ok
         )
 
+    def empty_combo_box(self):
+        QMessageBox.question(
+            self.main_window,
+            'Некорректные данные',
+            'Похоже вы ничего не выбрали',
+            QMessageBox.Ok
+        )
+
     def apply_paste(self):
         target_audio_path = self.current_edit_widgets[0].currentText()
         input_audio_path = self.current_edit_widgets[2].currentText()
         paste_time = self.current_edit_widgets[1].text()
+
+        if target_audio_path == '' or input_audio_path == '':
+            self.empty_combo_box()
+            return
 
         self.name = gui_controller.Utils.get_file_name() + '.mp3'
 
@@ -447,6 +453,10 @@ class AudioEditorDialog(QDialog):
     def _crop_and_reverse_apply(self, handler):
         input_audio_path, start_time, end_time = self._get_base_values()
 
+        if input_audio_path == '':
+            self.empty_combo_box()
+            return
+
         worker = handler(
             input_audio_path,
             f'{self.main_window.temp_dir}{os.sep}{self.name}',
@@ -458,6 +468,10 @@ class AudioEditorDialog(QDialog):
 
     def _apply_value(self, value, handler):
         input_audio_path, start_time, end_time = self._get_base_values()
+
+        if input_audio_path:
+            self.empty_combo_box()
+            return
 
         worker = handler(
             input_audio_path,
@@ -497,6 +511,10 @@ class AudioEditorDialog(QDialog):
 
     def _apply_convert(self, file_extension):
         input_audio_path = self.current_edit_widgets[0].currentText()
+
+        if input_audio_path:
+            self.empty_combo_box()
+            return
 
         self.name = gui_controller.Utils.get_file_name() + file_extension
 
