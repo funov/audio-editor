@@ -164,29 +164,7 @@ class AudioEditorDialog(QDialog):
         for i in range(2):
             self.current_edit_widgets[i + 1].setInputMask("00:00:00")
 
-        for i in range(3):
-            self.main_window.grid_layout.addWidget(
-                self.current_edit_widgets[i],
-                5, i * 3, 1, 3
-            )
-
-        self.main_window.grid_layout.addWidget(
-            self.current_edit_widgets[3],
-            6, 0, 1, 9
-        )
-
-        self.main_window.grid_layout.addWidget(
-            self.current_edit_widgets[4],
-            4, 0, 1, 3
-        )
-        self.main_window.grid_layout.addWidget(
-            self.current_edit_widgets[5],
-            4, 3, 1, 3
-        )
-        self.main_window.grid_layout.addWidget(
-            self.current_edit_widgets[6],
-            4, 6, 1, 3
-        )
+        self._show_standard_placement()
 
         self.hide()
 
@@ -209,29 +187,7 @@ class AudioEditorDialog(QDialog):
 
         self.current_edit_widgets[1].setInputMask("00:00:00")
 
-        for i in range(3):
-            self.main_window.grid_layout.addWidget(
-                self.current_edit_widgets[i],
-                5, i * 3, 1, 3
-            )
-
-        self.main_window.grid_layout.addWidget(
-            self.current_edit_widgets[3],
-            6, 0, 1, 9
-        )
-
-        self.main_window.grid_layout.addWidget(
-            self.current_edit_widgets[4],
-            4, 0, 1, 3
-        )
-        self.main_window.grid_layout.addWidget(
-            self.current_edit_widgets[5],
-            4, 3, 1, 3
-        )
-        self.main_window.grid_layout.addWidget(
-            self.current_edit_widgets[6],
-            4, 6, 1, 3
-        )
+        self._show_standard_placement()
 
         self.hide()
 
@@ -254,6 +210,11 @@ class AudioEditorDialog(QDialog):
 
         self.current_edit_widgets[1].setInputMask("00:00:00")
 
+        self._show_standard_placement()
+
+        self.hide()
+
+    def _show_standard_placement(self):
         for i in range(3):
             self.main_window.grid_layout.addWidget(
                 self.current_edit_widgets[i],
@@ -277,8 +238,6 @@ class AudioEditorDialog(QDialog):
             self.current_edit_widgets[6],
             4, 6, 1, 3
         )
-
-        self.hide()
 
     def show_speed_panel(self):
         self.remove_layout_widgets()
@@ -435,30 +394,6 @@ class AudioEditorDialog(QDialog):
                 self.current_edit_widgets[i].show()
                 break
 
-    def apply_crop(self):
-        input_audio_path = self.current_edit_widgets[0].currentText()
-        start_time = self.current_edit_widgets[1].text()
-        end_time = self.current_edit_widgets[2].text()
-
-        if start_time == '00:00:00':
-            start_time = None
-
-        if end_time == '00:00:00':
-            end_time = None
-
-        self.name = gui_controller.Utils.get_file_name() + '.mp3'
-
-        worker = gui_controller.CropAudioWorker(
-            input_audio_path,
-            f'{self.main_window.temp_dir}{os.sep}{self.name}',
-            start_time,
-            end_time
-        )
-
-        worker.signals.finished.connect(self.add_result_to_audio_list)
-        worker.signals.error.connect(self.value_error)
-        self.main_window.threadpool.start(worker)
-
     def value_error(self):
         QMessageBox.question(
             self.main_window,
@@ -481,65 +416,58 @@ class AudioEditorDialog(QDialog):
             paste_time
         )
 
-        worker.signals.finished.connect(self.add_result_to_audio_list)
-        worker.signals.error.connect(self.value_error)
-        self.main_window.threadpool.start(worker)
+        self._start_worker(worker)
 
     def apply_reverse(self):
-        input_audio_path = self.current_edit_widgets[0].currentText()
-        start_time = self.current_edit_widgets[1].text()
-        end_time = self.current_edit_widgets[2].text()
+        self._crop_and_reverse_apply(gui_controller.ReverseAudioWorker)
 
-        if start_time == '00:00:00':
-            start_time = None
-
-        if end_time == '00:00:00':
-            end_time = None
-
-        self.name = gui_controller.Utils.get_file_name() + '.mp3'
-
-        worker = gui_controller.ReverseAudioWorker(
-            input_audio_path,
-            f'{self.main_window.temp_dir}{os.sep}{self.name}',
-            start_time,
-            end_time
-        )
-
-        worker.signals.finished.connect(self.add_result_to_audio_list)
-        worker.signals.error.connect(self.value_error)
-        self.main_window.threadpool.start(worker)
+    def apply_crop(self):
+        self._crop_and_reverse_apply(gui_controller.CropAudioWorker)
 
     def apply_speed(self):
-        input_audio_path = self.current_edit_widgets[0].currentText()
-        start_time = self.current_edit_widgets[1].text()
-        end_time = self.current_edit_widgets[2].text()
         speed = self.current_edit_widgets[3].text()
 
-        if start_time == '00:00:00':
-            start_time = None
+        self._apply_value(speed, gui_controller.ChangeSpeedWorker)
 
-        if end_time == '00:00:00':
-            end_time = None
+    def apply_volume(self):
+        volume = self.current_edit_widgets[3].text()
 
-        self.name = gui_controller.Utils.get_file_name() + '.mp3'
+        self._apply_value(volume, gui_controller.ChangeVolumeWorker)
 
-        worker = gui_controller.ChangeSpeedWorker(
+    def _crop_and_reverse_apply(self, handler):
+        input_audio_path, start_time, end_time = self._get_base_values()
+
+        worker = handler(
             input_audio_path,
             f'{self.main_window.temp_dir}{os.sep}{self.name}',
-            speed,
             start_time,
             end_time
         )
 
+        self._start_worker(worker)
+
+    def _apply_value(self, value, handler):
+        input_audio_path, start_time, end_time = self._get_base_values()
+
+        worker = handler(
+            input_audio_path,
+            f'{self.main_window.temp_dir}{os.sep}{self.name}',
+            value,
+            start_time,
+            end_time
+        )
+
+        self._start_worker(worker)
+
+    def _start_worker(self, worker):
         worker.signals.finished.connect(self.add_result_to_audio_list)
         worker.signals.error.connect(self.value_error)
         self.main_window.threadpool.start(worker)
 
-    def apply_volume(self):
+    def _get_base_values(self):
         input_audio_path = self.current_edit_widgets[0].currentText()
         start_time = self.current_edit_widgets[1].text()
         end_time = self.current_edit_widgets[2].text()
-        volume = self.current_edit_widgets[3].text()
 
         if start_time == '00:00:00':
             start_time = None
@@ -549,35 +477,18 @@ class AudioEditorDialog(QDialog):
 
         self.name = gui_controller.Utils.get_file_name() + '.mp3'
 
-        worker = gui_controller.ChangeVolumeWorker(
-            input_audio_path,
-            f'{self.main_window.temp_dir}{os.sep}{self.name}',
-            volume,
-            start_time,
-            end_time
-        )
-
-        worker.signals.finished.connect(self.add_result_to_audio_list)
-        worker.signals.error.connect(self.value_error)
-        self.main_window.threadpool.start(worker)
+        return input_audio_path, start_time, end_time
 
     def apply_convert_to_mp3(self):
-        input_audio_path = self.current_edit_widgets[0].currentText()
-
-        self.name = gui_controller.Utils.get_file_name() + '.mp3'
-
-        worker = gui_controller.ConvertAudioWorker(
-            input_audio_path,
-            f'{self.main_window.temp_dir}{os.sep}{self.name}'
-        )
-
-        worker.signals.finished.connect(self.add_result_to_audio_list)
-        self.main_window.threadpool.start(worker)
+        self._apply_convert('.mp3')
 
     def apply_convert_to_wav(self):
+        self._apply_convert('.wav')
+
+    def _apply_convert(self, file_extension):
         input_audio_path = self.current_edit_widgets[0].currentText()
 
-        self.name = gui_controller.Utils.get_file_name() + '.wav'
+        self.name = gui_controller.Utils.get_file_name() + file_extension
 
         worker = gui_controller.ConvertAudioWorker(
             input_audio_path,
@@ -588,7 +499,9 @@ class AudioEditorDialog(QDialog):
         self.main_window.threadpool.start(worker)
 
     def apply_save(self):
-        if self.main_window.temp_dir.replace(os.sep, '/') in self.main_window.audio_list.currentItem().text():
+        current_item = self.main_window.audio_list.currentItem().text()
+
+        if self.main_window.temp_dir.replace(os.sep, '/') in current_item:
             file_path = QFileDialog.getExistingDirectory(self)
 
             if file_path == '':
@@ -597,7 +510,10 @@ class AudioEditorDialog(QDialog):
             src = self.main_window.audio_list.currentItem().text()
             src_row = self.main_window.audio_list.currentRow()
 
-            destination = gui_controller.Utils.replace_with_rename(src, file_path)
+            destination = gui_controller.Utils.replace_with_rename(
+                src,
+                file_path
+            )
 
             self.main_window.audio_list.takeItem(src_row)
             self.main_window.audio_list.addItem(destination)
@@ -631,13 +547,18 @@ class AudioEditorDialog(QDialog):
         return combo_box
 
     def add_result_to_audio_list(self):
-        audio_name = f'{self.main_window.temp_dir}{os.sep}{self.name}'.replace(os.sep, '/')
+        audio_name = f'{self.main_window.temp_dir}{os.sep}{self.name}'
+        audio_name = audio_name.replace(os.sep, '/')
 
         for widget in self.current_edit_widgets:
             if type(widget) is QComboBox:
                 widget.addItem(audio_name)
 
-        audio_list = [self.main_window.audio_list.item(i).text() for i in range(self.main_window.audio_list.count())]
+        audio_list = [
+            self.main_window.audio_list.item(i).text() for i in range(
+                self.main_window.audio_list.count()
+            )
+        ]
 
         if audio_name not in audio_list:
             self.main_window.audio_list.addItem(audio_name)

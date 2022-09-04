@@ -23,7 +23,7 @@ def from_str_time_to_int_seconds(str_time):
 
 
 def get_file_name():
-    return str(time()).replace('.', '') + str(randint(0, 9999))
+    return str(time()).replace('.', '') + str(randint(0, 9_999_999))
 
 
 def _add_start_zeros(float_value):
