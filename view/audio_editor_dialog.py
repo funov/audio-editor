@@ -634,7 +634,7 @@ class AudioEditorDialog(QDialog):
         audio_name = f'{self.main_window.temp_dir}{os.sep}{self.name}'.replace(os.sep, '/')
 
         for widget in self.current_edit_widgets:
-            if str(type(widget)) == "<class 'PyQt5.QtWidgets.QComboBox'>":
+            if type(widget) is QComboBox:
                 widget.addItem(audio_name)
 
         audio_list = [self.main_window.audio_list.item(i).text() for i in range(self.main_window.audio_list.count())]

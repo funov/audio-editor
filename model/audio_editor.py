@@ -1,4 +1,5 @@
 import os
+import sys
 
 from model.command_line_executor import CommandLineExecutor
 from model.audio_info import AudioInfo
@@ -235,8 +236,8 @@ class AudioEditor:
     @staticmethod
     def get_audio_info(audio_path, is_debug=False):
         command = f'ffmpeg -i {audio_path}'
-        process_std = AudioEditor._execute_command(command, is_debug)
-        info = AudioInfo(process_std)
+        stdout = AudioEditor._execute_command(command, is_debug)
+        info = AudioInfo(stdout)
 
         return info
 
@@ -359,22 +360,26 @@ class AudioEditor:
 
         result = process.communicate()
 
+        stdout = result[0]
+
+        # sys.stdin.buffer.flush()
+        # sys.stdout.buffer.flush()
+        # sys.stderr.buffer.flush()
+
+        # sys.stdin.flush()
+        # sys.stdout.flush()
+        # sys.stderr.flush()
+
         if not is_debug:
-            return result
+            return stdout
 
-        AudioEditor._print_std(result)
+        AudioEditor._print_std(stdout)
 
-        return result
+        return stdout
 
     @staticmethod
-    def _print_std(std):
-        std_output = std[0]
-        std_err = std[1]
-
+    def _print_std(std_output):
         for line in std_output.split('\n'):
-            print(line)
-
-        for line in std_err.split('\n'):
             print(line)
 
     @staticmethod

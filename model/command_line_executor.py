@@ -10,7 +10,7 @@ class CommandLineExecutor:
         process = subprocess.Popen(
             self.command,
             stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
             universal_newlines=True,
             cwd=self.working_directory
         )
