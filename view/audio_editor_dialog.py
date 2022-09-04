@@ -378,6 +378,16 @@ class AudioEditorDialog(QDialog):
             if text != '':
                 paths.append(text)
 
+        if len(paths) == 0:
+            QMessageBox.question(
+                self.main_window,
+                'Некорректные данные',
+                'Похоже вы ничего не выбрали',
+                QMessageBox.Ok
+            )
+
+            return
+
         self.name = gui_controller.Utils.get_file_name() + '.mp3'
 
         worker = gui_controller.GlueAudioWorker(
@@ -540,6 +550,7 @@ class AudioEditorDialog(QDialog):
     def configure_combo_box(self):
         combo_box = QComboBox()
 
+        combo_box.addItem('')
         for i in range(self.main_window.audio_list.count()):
             combo_box.addItem(self.main_window.audio_list.item(i).text())
 
