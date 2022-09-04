@@ -1,5 +1,4 @@
 import os
-import sys
 
 from model.command_line_executor import CommandLineExecutor
 from model.audio_info import AudioInfo
