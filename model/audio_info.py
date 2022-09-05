@@ -5,7 +5,7 @@ class AudioInfo:
     def __init__(self, stdout):
         self.std_output = stdout
 
-        self.stdout_lines = [line for line in self.std_output.split('\n')]
+        self.stdout_lines = self.std_output.split('\n')
 
         self.str_duration = self.get_str_duration()
         self.int_duration = from_str_time_to_int_seconds(self.str_duration)

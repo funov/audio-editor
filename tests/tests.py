@@ -1,8 +1,6 @@
 import unittest
-from unittest.mock import patch, mock_open
 
 from model.audio_info import AudioInfo
-from model.files_utils import replace_with_rename
 from model.time_utils import (
     to_str_time,
     from_str_time_to_int_seconds,
@@ -14,12 +12,15 @@ from model.time_utils import (
 
 class AudioInfoTests(unittest.TestCase):
     def setUp(self):
-        pass
+        self.stdout_str_duration = 'Text ffmpeg\nSome information ' \
+                                   'Duration: 12:01:01, another ' \
+                                   'information\nExit code 0'
+        self.expected_str_duration = '12:01:01'
 
+    def test_str_duration(self):
+        audio_info = AudioInfo(self.stdout_str_duration)
 
-class FilesUtilsTests(unittest.TestCase):
-    def setUp(self):
-        pass
+        self.assertEqual(self.expected_str_duration, audio_info.str_duration)
 
 
 class TimeUtilsTests(unittest.TestCase):
@@ -47,12 +48,18 @@ class TimeUtilsTests(unittest.TestCase):
     def test_from_str_time_to_int_seconds_zeros(self):
         int_seconds = from_str_time_to_int_seconds('00:00:00')
 
-        self.assertEqual(self.expected_from_str_time_to_int_seconds_zeros, int_seconds)
+        self.assertEqual(
+            self.expected_from_str_time_to_int_seconds_zeros,
+            int_seconds
+        )
 
     def test_from_str_time_to_int_seconds(self):
         int_seconds = from_str_time_to_int_seconds('55:31:03')
 
-        self.assertEqual(self.expected_from_str_time_to_int_seconds, int_seconds)
+        self.assertEqual(
+            self.expected_from_str_time_to_int_seconds,
+            int_seconds
+        )
 
     def test_unique_file_names(self):
         file_names = []
