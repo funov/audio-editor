@@ -469,7 +469,7 @@ class AudioEditorDialog(QDialog):
     def _apply_value(self, value, handler):
         input_audio_path, start_time, end_time = self._get_base_values()
 
-        if input_audio_path:
+        if input_audio_path == '':
             self.empty_combo_box()
             return
 
@@ -512,7 +512,7 @@ class AudioEditorDialog(QDialog):
     def _apply_convert(self, file_extension):
         input_audio_path = self.current_edit_widgets[0].currentText()
 
-        if input_audio_path:
+        if input_audio_path == '':
             self.empty_combo_box()
             return
 
