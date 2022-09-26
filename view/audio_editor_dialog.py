@@ -1,5 +1,7 @@
 import os
 
+from PyQt5.QtGui import QPixmap, QImage
+
 from utils import configure_button
 from controller import gui_controller
 
@@ -68,6 +70,12 @@ class AudioEditorDialog(QDialog):
             name="Сохранение"
         )
 
+        self.show_spectrogram_panel_button = configure_button(
+            self,
+            self.show_spectrogram_panel,
+            name="Спектрограмма"
+        )
+
         self.remove_editor_panel_button = configure_button(
             self,
             self.remove_editor_panel,
@@ -81,6 +89,7 @@ class AudioEditorDialog(QDialog):
 
         self.current_edit_widgets = []
         self.name = None
+        self.dialog = None
 
     def configure_form_layout(self):
         form = QFormLayout()
@@ -94,6 +103,7 @@ class AudioEditorDialog(QDialog):
         form.addRow(self.show_volume_panel_button)
         form.addRow(self.show_convert_panel_button)
         form.addRow(self.show_save_panel_button)
+        form.addRow(self.show_spectrogram_panel_button)
         form.addRow(QLabel())
         form.addRow(self.remove_editor_panel_button)
 
@@ -366,6 +376,24 @@ class AudioEditorDialog(QDialog):
 
         self.hide()
 
+    def show_spectrogram_panel(self):
+        self.remove_layout_widgets()
+
+        self.current_edit_widgets = [
+            configure_button(
+                self.main_window,
+                self.prepare_to_spectrogram,
+                name='Показать спектрограмму'
+            ),
+        ]
+
+        self.main_window.grid_layout.addWidget(
+            self.current_edit_widgets[0],
+            4, 0, 1, 9
+        )
+
+        self.hide()
+
     def remove_editor_panel(self):
         self.remove_layout_widgets()
         self.hide()
@@ -527,6 +555,10 @@ class AudioEditorDialog(QDialog):
         self.main_window.threadpool.start(worker)
 
     def apply_save(self):
+        if self.main_window.audio_list.currentItem() is None:
+            self.empty_combo_box()
+            return
+
         current_item = self.main_window.audio_list.currentItem().text()
 
         if self.main_window.temp_dir.replace(os.sep, '/') in current_item:
@@ -559,6 +591,82 @@ class AudioEditorDialog(QDialog):
                 'Это аудио и так сохранено',
                 QMessageBox.Ok
             )
+
+    def prepare_to_spectrogram(self):
+        if self.main_window.audio_list.currentItem() is None:
+            self.empty_combo_box()
+            return
+
+        current_item = self.main_window.audio_list.currentItem().text()
+
+        self.name = gui_controller.Utils.get_file_name() + '.wav'
+
+        worker = gui_controller.ConvertAudioWorker(
+            current_item,
+            f'{self.main_window.temp_dir}{os.sep}{self.name}'
+        )
+
+        worker.signals.finished.connect(self.apply_show_spectrogram)
+        self.main_window.threadpool.start(worker)
+
+    def apply_show_spectrogram(self):
+        name = gui_controller.Utils.get_file_name() + '.png'
+
+        worker = gui_controller.GetSpectrogramWorker(
+            f'{self.main_window.temp_dir}{os.sep}{self.name}',
+            f'{self.main_window.temp_dir}{os.sep}{name}'
+        )
+
+        self.name = name
+
+        worker.signals.finished.connect(self.show_spectrogram)
+        self.main_window.threadpool.start(worker)
+
+    def show_spectrogram(self):
+        self.dialog = QDialog()
+        self.dialog.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
+        self.dialog.setWindowTitle('Спектрограмма')
+
+        dialog_layout = QFormLayout()
+        self.dialog.setLayout(dialog_layout)
+
+        image = QImage(f'{self.main_window.temp_dir}{os.sep}{self.name}')
+        pixmap = QPixmap.fromImage(image)
+        label = QLabel()
+        label.setPixmap(pixmap)
+
+        save_spectrogram_button = configure_button(
+            self,
+            self.save_spectrogram,
+            name="Сохранить спектрограмму"
+        )
+
+        dialog_layout.addRow(label)
+        dialog_layout.addRow(save_spectrogram_button)
+
+        self.dialog.exec()
+
+    def save_spectrogram(self):
+        file_path = QFileDialog.getExistingDirectory(self)
+
+        if file_path == '':
+            return
+
+        picture_path = f'{self.main_window.temp_dir}{os.sep}{self.name}'
+
+        gui_controller.Utils.replace_with_rename(
+            picture_path,
+            file_path
+        )
+
+        QMessageBox.question(
+            self,
+            'Информация',
+            'Аудио сохранено',
+            QMessageBox.Ok
+        )
+
+        self.dialog.close()
 
     def remove_layout_widgets(self):
         for widget in self.current_edit_widgets:

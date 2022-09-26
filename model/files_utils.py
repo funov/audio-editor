@@ -2,6 +2,7 @@ import os
 
 
 def replace_with_rename(source, destination_folder, new_name=None):
+    source = source.replace('\\', '/')
     destination = destination_folder + '/' + source.split('/')[-1]
     destination_with_new_name = destination
 
