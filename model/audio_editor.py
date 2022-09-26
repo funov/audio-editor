@@ -3,6 +3,7 @@ import os
 from model.command_line_executor import CommandLineExecutor
 from model.audio_info import AudioInfo
 from model.time_utils import get_file_name, from_str_time_to_int_seconds
+from model.spectrogram import Spectrogram
 
 
 class AudioEditor:
@@ -239,6 +240,28 @@ class AudioEditor:
         info = AudioInfo(stdout)
 
         return info
+
+    @staticmethod
+    def get_spectrogram(
+            input_audio_path,
+            output_picture_path,
+            is_debug=False
+    ):
+        if input_audio_path.split('.')[-1] != 'wav':
+            converted_audio_path = '.'.join(
+                input_audio_path.split('.')[:-1]
+            ) + '.wav'
+            AudioEditor.convert(
+                input_audio_path,
+                converted_audio_path,
+                is_debug
+            )
+        else:
+            converted_audio_path = input_audio_path
+
+        spectrogram = Spectrogram(converted_audio_path)
+        result = spectrogram.get_spectrogram()
+        Spectrogram.save_spectrogram(result, output_picture_path)
 
     @staticmethod
     def _change_fragment_value(

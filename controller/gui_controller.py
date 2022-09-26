@@ -219,6 +219,23 @@ class GetAudioInfoWorker(QRunnable):
         self.signals.result.emit(audio_info)
 
 
+class GetSpectrogramWorker(QRunnable):
+    def __init__(self, input_audio_path, output_picture_path):
+        super(GetSpectrogramWorker, self).__init__()
+        self.input_audio_path = input_audio_path
+        self.output_picture_path = output_picture_path
+        self.signals = WorkerSignals()
+
+    @pyqtSlot()
+    def run(self):
+        AudioEditor.get_spectrogram(
+            self.input_audio_path,
+            self.output_picture_path,
+            IS_DEBUG
+        )
+        self.signals.finished.emit()
+
+
 class Utils:
     @staticmethod
     def replace_with_rename(source, destination_folder, new_name=None):

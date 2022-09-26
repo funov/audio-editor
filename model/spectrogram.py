@@ -23,15 +23,19 @@ class Spectrogram:
         self.hop_size = np.int32(np.floor(fft_size * (1 - overlap_factor)))
 
     def get_spectrogram(self):
-        # последний сегмент может перекрывать конец массива данных не более чем на один размер окна
+        # последний сегмент может перекрывать конец
+        # массива данных не более чем на один размер окна
         pad_end_size = self.fft_size
 
-        total_segments = np.int32(np.ceil(len(self.data) / np.float32(self.hop_size)))
+        total_segments = np.int32(
+            np.ceil(len(self.data) / np.float32(self.hop_size))
+        )
 
         # наше окно с половинным косинусом
         window = np.hanning(self.fft_size)
 
-        # нули, которые будут использоваться для удвоения размера каждого сегмента
+        # нули, которые будут использоваться для
+        # удвоения размера каждого сегмента
         inner_pad = np.zeros(self.fft_size)
 
         # данные для обработки
@@ -54,7 +58,8 @@ class Spectrogram:
             # добавьте нули, чтобы удвоить длину данных
             padded = np.append(windowed, inner_pad)
 
-            # возьмите преобразование Фурье и масштабируйте по количеству выборок
+            # возьмите преобразование Фурье и
+            # масштабируйте по количеству выборок
             spectrum = np.fft.fft(padded) / self.fft_size
 
             # найдите спектр автоматической мощности
@@ -74,8 +79,15 @@ class Spectrogram:
 
         return result
 
-    def save_spectrogram(self, spectrogram, path):
-        plt.imshow(spectrogram, origin='lower', cmap='jet', interpolation='nearest', aspect='auto')
+    @staticmethod
+    def save_spectrogram(spectrogram, path):
+        plt.imshow(
+            spectrogram,
+            origin='lower',
+            cmap='jet',
+            interpolation='nearest',
+            aspect='auto'
+        )
 
         plt.ylabel('Частота')
         plt.xlabel('Время')
