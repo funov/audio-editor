@@ -35,7 +35,17 @@ for i in range(total_segments):  # for each segment
 result = 20 * np.log10(result)  # scale to db
 result = np.clip(result, -40, 200)  # clip values
 
+result = np.rot90(result)
+result = np.flipud(result)
+
 matplotlib.use('TkAgg')
 
 img = plt.imshow(result, origin='lower', cmap='jet', interpolation='nearest', aspect='auto')
-plt.show()
+
+plt.ylabel('Частота')
+plt.xlabel('Время')
+
+plt.xticks([])
+plt.yticks([])
+
+plt.show()  # plt.imsave()
