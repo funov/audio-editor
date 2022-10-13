@@ -19,8 +19,10 @@ from PyQt5.QtWidgets import (
 
 
 class AudioEditorDialog(QDialog):
-    def __init__(self, x, y, width, height, main_window):
+    def __init__(self, x, y, width, height, main_window, is_debug):
         super(AudioEditorDialog, self).__init__()
+
+        self.is_debug = is_debug
 
         self.setGeometry(x, y, width, height)
 
@@ -414,7 +416,8 @@ class AudioEditorDialog(QDialog):
 
         worker = gui_controller.GlueAudioWorker(
             paths,
-            f'{self.main_window.temp_dir}{os.sep}{self.name}'
+            f'{self.main_window.temp_dir}{os.sep}{self.name}',
+            self.is_debug
         )
 
         worker.signals.finished.connect(self.add_result_to_audio_list)
@@ -457,7 +460,8 @@ class AudioEditorDialog(QDialog):
             target_audio_path,
             input_audio_path,
             f'{self.main_window.temp_dir}{os.sep}{self.name}',
-            paste_time
+            paste_time,
+            self.is_debug
         )
 
         self._start_worker(worker)
@@ -489,7 +493,8 @@ class AudioEditorDialog(QDialog):
             input_audio_path,
             f'{self.main_window.temp_dir}{os.sep}{self.name}',
             start_time,
-            end_time
+            end_time,
+            self.is_debug
         )
 
         self._start_worker(worker)
@@ -506,7 +511,8 @@ class AudioEditorDialog(QDialog):
             f'{self.main_window.temp_dir}{os.sep}{self.name}',
             value,
             start_time,
-            end_time
+            end_time,
+            self.is_debug
         )
 
         self._start_worker(worker)
@@ -548,7 +554,8 @@ class AudioEditorDialog(QDialog):
 
         worker = gui_controller.ConvertAudioWorker(
             input_audio_path,
-            f'{self.main_window.temp_dir}{os.sep}{self.name}'
+            f'{self.main_window.temp_dir}{os.sep}{self.name}',
+            self.is_debug
         )
 
         worker.signals.finished.connect(self.add_result_to_audio_list)
@@ -603,7 +610,8 @@ class AudioEditorDialog(QDialog):
 
         worker = gui_controller.ConvertAudioWorker(
             current_item,
-            f'{self.main_window.temp_dir}{os.sep}{self.name}'
+            f'{self.main_window.temp_dir}{os.sep}{self.name}',
+            self.is_debug
         )
 
         worker.signals.finished.connect(self.apply_show_spectrogram)
@@ -614,7 +622,8 @@ class AudioEditorDialog(QDialog):
 
         worker = gui_controller.GetSpectrogramWorker(
             f'{self.main_window.temp_dir}{os.sep}{self.name}',
-            f'{self.main_window.temp_dir}{os.sep}{name}'
+            f'{self.main_window.temp_dir}{os.sep}{name}',
+            self.is_debug
         )
 
         self.name = name

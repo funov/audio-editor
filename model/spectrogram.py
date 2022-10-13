@@ -2,14 +2,24 @@ import numpy as np
 import scipy.io.wavfile as wav
 import matplotlib.pyplot as plt
 import matplotlib
+import warnings
 
 
-matplotlib.use('TkAgg')
+matplotlib.use('Agg')
 
 
 class Spectrogram:
-    def __init__(self, audio_path, overlap_factor=0.5, fft_size=2**10):
+    def __init__(
+            self,
+            audio_path,
+            is_debug,
+            overlap_factor=0.5,
+            fft_size=2**10
+    ):
         self.audio_path = audio_path
+
+        if not is_debug:
+            warnings.filterwarnings("ignore", category=RuntimeWarning)
 
         fs, data = wav.read(audio_path)
         if len(data.shape) > 1:
@@ -31,7 +41,6 @@ class Spectrogram:
             np.ceil(len(self.data) / np.float32(self.hop_size))
         )
 
-        # наше окно с половинным косинусом
         window = np.hanning(self.fft_size)
 
         # нули, которые будут использоваться для

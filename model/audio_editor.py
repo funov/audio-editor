@@ -259,7 +259,7 @@ class AudioEditor:
         else:
             converted_audio_path = input_audio_path
 
-        spectrogram = Spectrogram(converted_audio_path)
+        spectrogram = Spectrogram(converted_audio_path, is_debug)
         result = spectrogram.get_spectrogram()
         Spectrogram.save_spectrogram(result, output_picture_path)
 

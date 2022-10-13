@@ -1,4 +1,6 @@
 import sys
+import os
+import configparser
 from tempfile import TemporaryDirectory
 
 from slider import Slider
@@ -20,6 +22,9 @@ from PyQt5.QtWidgets import (
     QStyle,
     QListWidget
 )
+
+
+IS_DEBUG = False
 
 
 class Window(QMainWindow):
@@ -169,7 +174,7 @@ class Window(QMainWindow):
             )
 
     def get_audio_line_length(self, path):
-        worker = gui_controller.GetAudioInfoWorker(path)
+        worker = gui_controller.GetAudioInfoWorker(path, IS_DEBUG)
         worker.signals.result.connect(self.start_playing)
         self.threadpool.start(worker)
 
@@ -229,7 +234,8 @@ class Window(QMainWindow):
                 pos_y,
                 window_w,
                 window_h,
-                self
+                self,
+                IS_DEBUG
             )
 
         self.edit_dialog.show()
@@ -290,9 +296,28 @@ class Window(QMainWindow):
 
 if __name__ == '__main__':
     application = QApplication(sys.argv)
+    config = configparser.ConfigParser()
+
+    try:
+        current_dir = os.path.realpath('gui_entry_point.py')
+        split_sep = os.sep + "view" + os.sep
+        settings_path = os.path.join(
+            current_dir.split(split_sep)[0],
+            'settings.ini'
+        )
+
+        config.read(settings_path)
+
+        if config["ApplicationStart"]["debug"] == 'True':
+            IS_DEBUG = True
+        elif config["ApplicationStart"]["debug"] != 'False':
+            print('В поле debug конфига должно быть значение True или False')
+    except KeyError:
+        print('Видимо вы забыли написать конфиг файл')
 
     with TemporaryDirectory() as temp_dir_name:
-        print('Создана временная директория -', temp_dir_name)
+        if IS_DEBUG:
+            print('Создана временная директория -', temp_dir_name)
 
         window = Window(application, temp_dir_name)
         window.show()

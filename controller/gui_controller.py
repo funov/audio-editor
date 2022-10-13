@@ -9,22 +9,20 @@ from model.time_utils import (
 from PyQt5.QtCore import QRunnable, pyqtSlot, QObject, pyqtSignal
 
 
-IS_DEBUG = False
-
-
 class GlueAudioWorker(QRunnable):
-    def __init__(self, input_audio_paths, output_audio_path):
+    def __init__(self, input_audio_paths, output_audio_path, is_debug):
         super(GlueAudioWorker, self).__init__()
         self.input_audio_paths = input_audio_paths
         self.output_audio_path = output_audio_path
         self.signals = WorkerSignals()
+        self.is_debug = is_debug
 
     @pyqtSlot()
     def run(self):
         AudioEditor.glue_audio(
             self.input_audio_paths,
             self.output_audio_path,
-            IS_DEBUG
+            self.is_debug
         )
         self.signals.finished.emit()
 
@@ -35,13 +33,15 @@ class CropAudioWorker(QRunnable):
             input_audio_path,
             output_audio_path,
             start_time,
-            end_time
+            end_time,
+            is_debug
     ):
         super(CropAudioWorker, self).__init__()
         self.input_audio_path = input_audio_path
         self.output_audio_path = output_audio_path
         self.start_time = start_time
         self.end_time = end_time
+        self.is_debug = is_debug
         self.signals = WorkerSignals()
 
     @pyqtSlot()
@@ -52,7 +52,7 @@ class CropAudioWorker(QRunnable):
                 self.output_audio_path,
                 self.start_time,
                 self.end_time,
-                IS_DEBUG
+                self.is_debug
             )
         except ValueError:
             self.signals.error.emit()
@@ -66,13 +66,15 @@ class PasteAudioWorker(QRunnable):
             target_audio_path,
             input_audio_path,
             output_audio_path,
-            paste_time
+            paste_time,
+            is_debug
     ):
         super(PasteAudioWorker, self).__init__()
         self.target_audio_path = target_audio_path
         self.input_audio_path = input_audio_path
         self.output_audio_path = output_audio_path
         self.paste_time = paste_time
+        self.is_debug = is_debug
         self.signals = WorkerSignals()
 
     @pyqtSlot()
@@ -83,7 +85,7 @@ class PasteAudioWorker(QRunnable):
                 self.input_audio_path,
                 self.output_audio_path,
                 self.paste_time,
-                IS_DEBUG
+                self.is_debug
             )
         except ValueError:
             self.signals.error.emit()
@@ -97,13 +99,15 @@ class ReverseAudioWorker(QRunnable):
             input_audio_path,
             output_audio_path,
             start_time,
-            end_time
+            end_time,
+            is_debug
     ):
         super(ReverseAudioWorker, self).__init__()
         self.input_audio_path = input_audio_path
         self.output_audio_path = output_audio_path
         self.start_time = start_time
         self.end_time = end_time
+        self.is_debug = is_debug
         self.signals = WorkerSignals()
 
     @pyqtSlot()
@@ -114,7 +118,7 @@ class ReverseAudioWorker(QRunnable):
                 self.output_audio_path,
                 self.start_time,
                 self.end_time,
-                IS_DEBUG
+                self.is_debug
             )
         except ValueError:
             self.signals.error.emit()
@@ -129,7 +133,8 @@ class ChangeSpeedWorker(QRunnable):
             output_audio_path,
             speed,
             start_time,
-            end_time
+            end_time,
+            is_debug
     ):
         super(ChangeSpeedWorker, self).__init__()
         self.input_audio_path = input_audio_path
@@ -138,6 +143,7 @@ class ChangeSpeedWorker(QRunnable):
         self.start_time = start_time
         self.end_time = end_time
         self.signals = WorkerSignals()
+        self.is_debug = is_debug
 
     @pyqtSlot()
     def run(self):
@@ -148,7 +154,7 @@ class ChangeSpeedWorker(QRunnable):
                 self.speed,
                 self.start_time,
                 self.end_time,
-                IS_DEBUG
+                self.is_debug
             )
         except ValueError:
             self.signals.error.emit()
@@ -163,7 +169,8 @@ class ChangeVolumeWorker(QRunnable):
             output_audio_path,
             volume,
             start_time,
-            end_time
+            end_time,
+            is_debug
     ):
         super(ChangeVolumeWorker, self).__init__()
         self.input_audio_path = input_audio_path
@@ -171,6 +178,7 @@ class ChangeVolumeWorker(QRunnable):
         self.volume = volume
         self.start_time = start_time
         self.end_time = end_time
+        self.is_debug = is_debug
         self.signals = WorkerSignals()
 
     @pyqtSlot()
@@ -182,7 +190,7 @@ class ChangeVolumeWorker(QRunnable):
                 self.volume,
                 self.start_time,
                 self.end_time,
-                IS_DEBUG
+                self.is_debug
             )
         except ValueError:
             self.signals.error.emit()
@@ -191,47 +199,50 @@ class ChangeVolumeWorker(QRunnable):
 
 
 class ConvertAudioWorker(QRunnable):
-    def __init__(self, input_audio_path, output_audio_path):
+    def __init__(self, input_audio_path, output_audio_path, is_debug):
         super(ConvertAudioWorker, self).__init__()
         self.input_audio_path = input_audio_path
         self.output_audio_path = output_audio_path
         self.signals = WorkerSignals()
+        self.is_debug = is_debug
 
     @pyqtSlot()
     def run(self):
         AudioEditor.convert(
             self.input_audio_path,
             self.output_audio_path,
-            IS_DEBUG
+            self.is_debug
         )
         self.signals.finished.emit()
 
 
 class GetAudioInfoWorker(QRunnable):
-    def __init__(self, path):
+    def __init__(self, path, is_debug):
         super(GetAudioInfoWorker, self).__init__()
         self.path = path
         self.signals = WorkerSignals()
+        self.is_debug = is_debug
 
     @pyqtSlot()
     def run(self):
-        audio_info = AudioEditor.get_audio_info(self.path, IS_DEBUG)
+        audio_info = AudioEditor.get_audio_info(self.path, self.is_debug)
         self.signals.result.emit(audio_info)
 
 
 class GetSpectrogramWorker(QRunnable):
-    def __init__(self, input_audio_path, output_picture_path):
+    def __init__(self, input_audio_path, output_picture_path, is_debug):
         super(GetSpectrogramWorker, self).__init__()
         self.input_audio_path = input_audio_path
         self.output_picture_path = output_picture_path
         self.signals = WorkerSignals()
+        self.is_debug = is_debug
 
     @pyqtSlot()
     def run(self):
         AudioEditor.get_spectrogram(
             self.input_audio_path,
             self.output_picture_path,
-            IS_DEBUG
+            self.is_debug
         )
         self.signals.finished.emit()
 
