@@ -1,7 +1,8 @@
 import sys
 import os
-import configparser
 from tempfile import TemporaryDirectory
+
+import tomli
 
 from slider import Slider
 from utils import configure_button
@@ -296,22 +297,24 @@ class Window(QMainWindow):
 
 if __name__ == '__main__':
     application = QApplication(sys.argv)
-    config = configparser.ConfigParser()
 
     try:
         current_dir = os.path.realpath('gui_entry_point.py')
         split_sep = os.sep + "view" + os.sep
         settings_path = os.path.join(
             current_dir.split(split_sep)[0],
-            'settings.ini'
+            'settings.toml'
         )
 
-        config.read(settings_path)
+        with open(settings_path, "rb") as f:
+            toml_config = tomli.load(f)
 
-        if config["ApplicationStart"]["debug"] == 'True':
-            IS_DEBUG = True
-        elif config["ApplicationStart"]["debug"] != 'False':
+        _debug = toml_config['start']['debug']
+
+        if _debug not in [True, False]:
             print('В поле debug конфига должно быть значение True или False')
+        else:
+            IS_DEBUG = _debug
     except KeyError:
         print('Видимо вы забыли написать конфиг файл')
 
